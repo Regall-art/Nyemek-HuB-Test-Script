@@ -1,13 +1,12 @@
--- NYEMEK HUB - BROOKHAVEN ULTIMATE UNLOCKER
--- Fitur: Unlock All Cars, Premium Bypass, Speed, & More
+-- NYEMEK HUB - BROOKHAVEN VIP & PREMIUM BYPASS (SESSION ONLY)
 
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
    Name = "Nyemek HuB", 
-   LoadingTitle = "Nyemek HuB: Brookhaven Edition",
-   LoadingSubtitle = "Unlocking Premium Assets...",
-   ConfigurationSaving = { Enabled = true, FolderName = "Nyemek_Brookhaven", FileName = "Config" },
+   LoadingTitle = "Nyemek HuB: Brookhaven God",
+   LoadingSubtitle = "Bypassing Gamepasses...",
+   ConfigurationSaving = { Enabled = true, FolderName = "Nyemek_BH", FileName = "Config" },
    Discord = { Enabled = false },
    KeySystem = false,
 })
@@ -17,45 +16,53 @@ local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 
 -- ============================================
--- THE UNLOCKER LOGIC
+-- THE VIP BYPASS LOGIC
 -- ============================================
 
-local function UnlockBrookhaven()
-    -- 1. Bypass Premium & Gamepass Status
-    -- Menipu game agar menganggap player memiliki akses premium
+local function ActivateNyemekVIP()
+    -- 1. Metatable Hooking (Menipu sistem pengecekan Gamepass)
     local mt = getrawmetatable(game)
-    local old = mt.__namecall
+    local oldNamecall = mt.__namecall
     setreadonly(mt, false)
 
     mt.__namecall = newcclosure(function(self, ...)
         local method = getnamecallmethod()
+        local args = {...}
+        
+        -- Menipu game agar menganggap player punya Gamepass ID apa pun
         if method == "UserOwnsGamePassAsync" or method == "PlayerOwnsAsset" then
             return true
         end
-        return old(self, ...)
+        return oldNamecall(self, unpack(args))
     end)
     setreadonly(mt, true)
 
-    -- 2. Visual Unlock (Menghilangkan ikon gembok di UI)
+    -- 2. Force Unlock UI Elements
+    -- Menghapus status "Locked" pada UI Mobil dan Rumah
     task.spawn(function()
         while true do
             pcall(function()
-                local gui = player.PlayerGui:FindFirstChild("ItemsGui") or player.PlayerGui:FindFirstChild("Z_MainGui")
-                if gui then
-                    for _, v in pairs(gui:GetDescendants()) do
-                        if v.Name == "Locked" or v.Name == "Lock" or v.Name == "RobuxIcon" then
+                local mainGui = player.PlayerGui:FindFirstChild("MainGui") or player.PlayerGui:FindFirstChild("Z_MainGui")
+                if mainGui then
+                    for _, v in pairs(mainGui:GetDescendants()) do
+                        if v.Name == "Locked" or v.Name == "LockIcon" or v:IsA("ImageLabel") and v.Image:find("rbxassetid://") then
                             v.Visible = false
+                        end
+                        -- Membuka tombol yang tadinya tidak bisa diklik
+                        if v:IsA("TextButton") or v:IsA("ImageButton") then
+                            v.Active = true
+                            v.Selectable = true
                         end
                     end
                 end
             end)
-            task.wait(1)
+            task.wait(1.5)
         end
     end)
 
     Rayfield:Notify({
         Title = "Nyemek HuB",
-        Content = "Premium & All Cars Unlocked! (Temporary Session)",
+        Content = "VIP & Premium Bypass Active! (Session Only)",
         Duration = 5
     })
 end
@@ -66,38 +73,11 @@ end
 
 local MainTab = Window:CreateTab("🔓 Unlocker", 4483362458)
 MainTab:CreateButton({
-   Name = "🚀 ACTIVATE PREMIUM & ALL CARS",
-   Callback = function() UnlockBrookhaven() end,
+   Name = "🚀 ACTIVATE VIP / PREMIUM ACCESS",
+   Callback = function() ActivateNyemekVIP() end,
 })
 
 local PlayerTab = Window:CreateTab("👤 Player", 4483362458)
-PlayerTab:CreateSlider({
-    Name = "Walkspeed", 
-    Range = {16, 200}, 
-    CurrentValue = 16, 
-    Callback = function(v) 
-        if player.Character and player.Character:FindFirstChild("Humanoid") then
-            player.Character.Humanoid.WalkSpeed = v 
-        end
-    end
-})
+PlayerTab:CreateSlider({Name = "Walkspeed", Range = {16, 200}, CurrentValue = 16, Callback = function(v) player.Character.Humanoid.WalkSpeed = v end})
 
-PlayerTab:CreateToggle({
-    Name = "Infinite Jump",
-    CurrentValue = false,
-    Callback = function(v)
-        _G.InfJump = v
-        game:GetService("UserInputService").JumpRequest:Connect(function()
-            if _G.InfJump then
-                player.Character:FindFirstChildOfClass("Humanoid"):ChangeState("Jumping")
-            end
-        end)
-    end
-})
-
--- ============================================
--- LOADSTRING COMMAND
--- ============================================
 -- loadstring(game:HttpGet("https://raw.githubusercontent.com/Regall-art/Nyemek-HuB-Test-Script/refs/heads/main/Test.lua"))()
-
-Rayfield:Notify({Title = "Nyemek HuB", Content = "Siap digunakan di Brookhaven!"})
