@@ -1,12 +1,13 @@
--- NYEMEK HUB - BROOKHAVEN VIP & PREMIUM BYPASS (SESSION ONLY)
+-- NYEMEK HUB V2 - BROOKHAVEN AGGRESSIVE BYPASS
+-- Metode: Remote Spoofing & UI Force Hijack
 
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
-   Name = "Nyemek HuB", 
-   LoadingTitle = "Nyemek HuB: Brookhaven God",
-   LoadingSubtitle = "Bypassing Gamepasses...",
-   ConfigurationSaving = { Enabled = true, FolderName = "Nyemek_BH", FileName = "Config" },
+   Name = "Nyemek HuB V2", 
+   LoadingTitle = "Nyemek HuB: Cracking Brookhaven...",
+   LoadingSubtitle = "Bypassing Server Checks",
+   ConfigurationSaving = { Enabled = true, FolderName = "Nyemek_BH_V2", FileName = "Config" },
    Discord = { Enabled = false },
    KeySystem = false,
 })
@@ -16,55 +17,47 @@ local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 
 -- ============================================
--- THE VIP BYPASS LOGIC
+-- CORE: AGGRESSIVE VIP BYPASS
 -- ============================================
 
-local function ActivateNyemekVIP()
-    -- 1. Metatable Hooking (Menipu sistem pengecekan Gamepass)
-    local mt = getrawmetatable(game)
-    local oldNamecall = mt.__namecall
-    setreadonly(mt, false)
-
-    mt.__namecall = newcclosure(function(self, ...)
-        local method = getnamecallmethod()
-        local args = {...}
-        
-        -- Menipu game agar menganggap player punya Gamepass ID apa pun
-        if method == "UserOwnsGamePassAsync" or method == "PlayerOwnsAsset" then
-            return true
-        end
-        return oldNamecall(self, unpack(args))
-    end)
-    setreadonly(mt, true)
-
-    -- 2. Force Unlock UI Elements
-    -- Menghapus status "Locked" pada UI Mobil dan Rumah
+local function NyemekAggressiveUnlock()
+    -- 1. Menghilangkan Notifikasi "Need Premium" secara paksa
     task.spawn(function()
         while true do
             pcall(function()
-                local mainGui = player.PlayerGui:FindFirstChild("MainGui") or player.PlayerGui:FindFirstChild("Z_MainGui")
-                if mainGui then
-                    for _, v in pairs(mainGui:GetDescendants()) do
-                        if v.Name == "Locked" or v.Name == "LockIcon" or v:IsA("ImageLabel") and v.Image:find("rbxassetid://") then
+                local gui = player.PlayerGui:FindFirstChild("MainGui") or player.PlayerGui:FindFirstChild("Z_MainGui")
+                if gui then
+                    -- Cari Pop-Up "Unlock Premium" dan hapus
+                    local premiumPopUp = gui:FindFirstChild("Premium") or gui:FindFirstChild("Purchase")
+                    if premiumPopUp then premiumPopUp.Visible = false end
+                    
+                    -- Hapus semua ikon gembok biru (Premium Star)
+                    for _, v in pairs(gui:GetDescendants()) do
+                        if v:IsA("ImageLabel") and (v.Image:find("7229528578") or v.Name == "Locked") then
                             v.Visible = false
-                        end
-                        -- Membuka tombol yang tadinya tidak bisa diklik
-                        if v:IsA("TextButton") or v:IsA("ImageButton") then
-                            v.Active = true
-                            v.Selectable = true
                         end
                     end
                 end
             end)
-            task.wait(1.5)
+            task.wait(0.5)
         end
     end)
 
-    Rayfield:Notify({
-        Title = "Nyemek HuB",
-        Content = "VIP & Premium Bypass Active! (Session Only)",
-        Duration = 5
-    })
+    -- 2. Remote Spoofing (Menipu Server)
+    local mt = getrawmetatable(game)
+    local old = mt.__namecall
+    setreadonly(mt, false)
+
+    mt.__namecall = newcclosure(function(self, ...)
+        local method = getnamecallmethod()
+        if method == "UserOwnsGamePassAsync" or method == "PlayerOwnsAsset" then
+            return true -- Selalu lapor ke game bahwa kita "Punya" VIP
+        end
+        return old(self, ...)
+    end)
+    setreadonly(mt, true)
+
+    Rayfield:Notify({Title = "Nyemek HuB", Content = "Aggressive Mode Aktif! Coba spawn mobil sekarang."})
 end
 
 -- ============================================
@@ -73,11 +66,16 @@ end
 
 local MainTab = Window:CreateTab("🔓 Unlocker", 4483362458)
 MainTab:CreateButton({
-   Name = "🚀 ACTIVATE VIP / PREMIUM ACCESS",
-   Callback = function() ActivateNyemekVIP() end,
+   Name = "🚀 FORCE UNLOCK PREMIUM/VIP",
+   Callback = function() NyemekAggressiveUnlock() end,
 })
 
 local PlayerTab = Window:CreateTab("👤 Player", 4483362458)
-PlayerTab:CreateSlider({Name = "Walkspeed", Range = {16, 200}, CurrentValue = 16, Callback = function(v) player.Character.Humanoid.WalkSpeed = v end})
+PlayerTab:CreateSlider({Name = "Speed", Range = {16, 300}, CurrentValue = 16, Callback = function(v) player.Character.Humanoid.WalkSpeed = v end})
+PlayerTab:CreateButton({Name = "Teleport to VIP House", Callback = function() 
+    -- Koordinat rumah VIP biasanya di sini
+    player.Character.HumanoidRootPart.CFrame = CFrame.new(-396, 22, -373) 
+end})
 
+-- Tetap pakai loadstring yang sama:
 -- loadstring(game:HttpGet("https://raw.githubusercontent.com/Regall-art/Nyemek-HuB-Test-Script/refs/heads/main/Test.lua"))()
