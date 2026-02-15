@@ -1,13 +1,13 @@
--- NYEMEK HUB V2 - BROOKHAVEN AGGRESSIVE BYPASS
--- Metode: Remote Spoofing & UI Force Hijack
+-- NYEMEK HUB V3 - BROOKHAVEN GAMEPASS SPOOFER (SESSION ONLY)
+-- Metode: Deep Metatable Hooking & UI Bypass
 
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
-   Name = "Nyemek HuB V2", 
-   LoadingTitle = "Nyemek HuB: Cracking Brookhaven...",
-   LoadingSubtitle = "Bypassing Server Checks",
-   ConfigurationSaving = { Enabled = true, FolderName = "Nyemek_BH_V2", FileName = "Config" },
+   Name = "Nyemek HuB V3", 
+   LoadingTitle = "Nyemek HuB: Brookhaven Bypass",
+   LoadingSubtitle = "Spoofing Gamepass Data...",
+   ConfigurationSaving = { Enabled = true, FolderName = "Nyemek_BH_V3", FileName = "Config" },
    Discord = { Enabled = false },
    KeySystem = false,
 })
@@ -17,24 +17,39 @@ local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 
 -- ============================================
--- CORE: AGGRESSIVE VIP BYPASS
+-- THE DEEP SPOOFER LOGIC
 -- ============================================
 
-local function NyemekAggressiveUnlock()
-    -- 1. Menghilangkan Notifikasi "Need Premium" secara paksa
+local function ManipulateGamepass()
+    -- 1. FORCE GAMEPASS OWNED (Metatable Hook)
+    -- Menipu fungsi pengecekan aset agar selalu mengembalikan nilai 'true'
+    local mt = getrawmetatable(game)
+    local oldNamecall = mt.__namecall
+    setreadonly(mt, false)
+
+    mt.__namecall = newcclosure(function(self, ...)
+        local method = getnamecallmethod()
+        if method == "UserOwnsGamePassAsync" or method == "PlayerOwnsAsset" or method == "GetProductInfo" then
+            return true
+        end
+        return oldNamecall(self, unpack({...}))
+    end)
+    setreadonly(mt, true)
+
+    -- 2. UI BYPASS (Menghapus Notifikasi "You need the Premium...")
     task.spawn(function()
         while true do
             pcall(function()
-                local gui = player.PlayerGui:FindFirstChild("MainGui") or player.PlayerGui:FindFirstChild("Z_MainGui")
-                if gui then
-                    -- Cari Pop-Up "Unlock Premium" dan hapus
-                    local premiumPopUp = gui:FindFirstChild("Premium") or gui:FindFirstChild("Purchase")
-                    if premiumPopUp then premiumPopUp.Visible = false end
+                local mainGui = player.PlayerGui:FindFirstChild("MainGui") or player.PlayerGui:FindFirstChild("Z_MainGui")
+                if mainGui then
+                    -- Menghapus pop-up pembelian (275 Robux) yang muncul di foto kamu
+                    if mainGui:FindFirstChild("Premium") then mainGui.Premium.Visible = false end
+                    if mainGui:FindFirstChild("PurchaseUI") then mainGui.PurchaseUI.Visible = false end
                     
-                    -- Hapus semua ikon gembok biru (Premium Star)
-                    for _, v in pairs(gui:GetDescendants()) do
-                        if v:IsA("ImageLabel") and (v.Image:find("7229528578") or v.Name == "Locked") then
-                            v.Visible = false
+                    -- Menghapus teks "You need the Premium..." yang menutupi layar
+                    for _, v in pairs(mainGui:GetDescendants()) do
+                        if v:IsA("TextLabel") and v.Text:find("Premium") then
+                            v.Parent.Visible = false
                         end
                     end
                 end
@@ -43,21 +58,11 @@ local function NyemekAggressiveUnlock()
         end
     end)
 
-    -- 2. Remote Spoofing (Menipu Server)
-    local mt = getrawmetatable(game)
-    local old = mt.__namecall
-    setreadonly(mt, false)
-
-    mt.__namecall = newcclosure(function(self, ...)
-        local method = getnamecallmethod()
-        if method == "UserOwnsGamePassAsync" or method == "PlayerOwnsAsset" then
-            return true -- Selalu lapor ke game bahwa kita "Punya" VIP
-        end
-        return old(self, ...)
-    end)
-    setreadonly(mt, true)
-
-    Rayfield:Notify({Title = "Nyemek HuB", Content = "Aggressive Mode Aktif! Coba spawn mobil sekarang."})
+    Rayfield:Notify({
+        Title = "Nyemek HuB",
+        Content = "Gamepasses Spoofed! Coba akses mobil VIP sekarang.",
+        Duration = 5
+    })
 end
 
 -- ============================================
@@ -66,16 +71,11 @@ end
 
 local MainTab = Window:CreateTab("🔓 Unlocker", 4483362458)
 MainTab:CreateButton({
-   Name = "🚀 FORCE UNLOCK PREMIUM/VIP",
-   Callback = function() NyemekAggressiveUnlock() end,
+   Name = "🔥 MANIPULATE GAMEPASS (Owned)",
+   Callback = function() ManipulateGamepass() end,
 })
 
 local PlayerTab = Window:CreateTab("👤 Player", 4483362458)
-PlayerTab:CreateSlider({Name = "Speed", Range = {16, 300}, CurrentValue = 16, Callback = function(v) player.Character.Humanoid.WalkSpeed = v end})
-PlayerTab:CreateButton({Name = "Teleport to VIP House", Callback = function() 
-    -- Koordinat rumah VIP biasanya di sini
-    player.Character.HumanoidRootPart.CFrame = CFrame.new(-396, 22, -373) 
-end})
+PlayerTab:CreateSlider({Name = "Walkspeed", Range = {16, 300}, CurrentValue = 16, Callback = function(v) player.Character.Humanoid.WalkSpeed = v end})
 
--- Tetap pakai loadstring yang sama:
 -- loadstring(game:HttpGet("https://raw.githubusercontent.com/Regall-art/Nyemek-HuB-Test-Script/refs/heads/main/Test.lua"))()
