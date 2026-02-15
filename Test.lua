@@ -1,13 +1,13 @@
--- NYEMEK HUB ULTIMATE - BRAINROT ESCAPE (UNIVERSAL BYPASS)
--- Memaksa fitur muncul & bekerja dengan Scanner Otomatis
+-- NYEMEK HUB V5 - BRAINROT BASE STEALER & DUPLICATOR
+-- Fokus: Mencuri dari Base & Bypass Duplicate Check
 
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
-   Name = "Nyemek HuB: Brainrot V2", 
-   LoadingTitle = "Nyemek HuB: Scanning Game Data...",
-   LoadingSubtitle = "By Gemini AI",
-   ConfigurationSaving = { Enabled = true, FolderName = "Nyemek_V2", FileName = "Config" },
+   Name = "Nyemek HuB V5", 
+   LoadingTitle = "Nyemek HuB: Stealer & Duplicator",
+   LoadingSubtitle = "Aggressive Remote Access...",
+   ConfigurationSaving = { Enabled = true, FolderName = "Nyemek_V5", FileName = "Config" },
    Discord = { Enabled = false },
    KeySystem = false,
 })
@@ -18,100 +18,75 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local player = Players.LocalPlayer
 
 -- ============================================
--- THE CORE FIX (BYPASS & SCANNER)
+-- THE AGGRESSIVE BRAINROT FUNCTIONS
 -- ============================================
 
-local function ForceUnlockEverything()
-    -- 1. Gamepass & VIP Spoofing (Menghilangkan Gembok)
-    local mt = getrawmetatable(game)
-    setreadonly(mt, false)
-    local old = mt.__namecall
-    mt.__namecall = newcclosure(function(self, ...)
-        if getnamecallmethod() == "UserOwnsGamePassAsync" or getnamecallmethod() == "PlayerOwnsAsset" then
-            return true
-        end
-        return old(self, ...)
-    end)
-    setreadonly(mt, true)
-
-    -- 2. Forced UI Manipulation (Mengubah Uang & Token)
+local function ActivateStealAndDuplicate()
+    -- 1. STEAL FROM BASE (Teleport ke objek di dalam Base Player lain)
     task.spawn(function()
-        while true do
+        while _G.StealFromBase do
             pcall(function()
-                for _, v in pairs(player.PlayerGui:GetDescendants()) do
-                    if v:IsA("TextLabel") and (v.Text:find("$") or v.Name:lower():find("token")) then
-                        v.Text = "999,999,999"
+                for _, otherPlayer in pairs(Players:GetPlayers()) do
+                    if otherPlayer ~= player then
+                        -- Mencari objek Brainrot yang sudah ada di Base player lain
+                        for _, obj in pairs(game.Workspace:GetDescendants()) do
+                            if (obj.Name:lower():find("brainrot") or obj.Name:lower():find("box")) and obj:IsDescendantOf(game.Workspace:FindFirstChild(otherPlayer.Name .. "Base") or game.Workspace) then
+                                if obj:IsA("BasePart") then
+                                    player.Character.HumanoidRootPart.CFrame = obj.CFrame
+                                    task.wait(0.2)
+                                end
+                            end
+                        end
                     end
                 end
             end)
             task.wait(1)
         end
     end)
+
+    -- 2. DUPLICATE FIX (Spamming Remote dengan bypass delay)
+    task.spawn(function()
+        while _G.DuplicateActive do
+            pcall(function()
+                -- Mencari Remote Event spesifik untuk Spawn atau Claim
+                for _, r in pairs(ReplicatedStorage:GetDescendants()) do
+                    if r:IsA("RemoteEvent") and (r.Name:find("Claim") or r.Name:find("Spawn")) then
+                        for i = 1, 15 do -- Spam 15 kali sekaligus
+                            r:FireServer()
+                        end
+                    end
+                end
+            end)
+            task.wait(0.1)
+        end
+    end)
     
-    Rayfield:Notify({Title = "Nyemek HuB", Content = "Semua Fitur Berhasil Disuntikkan!"})
+    Rayfield:Notify({Title = "Nyemek HuB", Content = "Stealer & Duplicate Mode Aktif!"})
 end
 
 -- ============================================
 -- UI TABS
 -- ============================================
 
-local MainTab = Window:CreateTab("🔓 God Mode", 4483362458)
+local MainTab = Window:CreateTab("🌀 Brainrot Ops", 4483362458)
+
+_G.StealFromBase = false
+MainTab:CreateToggle({
+   Name = "🥷 Steal Brainrot from Base",
+   CurrentValue = false,
+   Callback = function(v) _G.StealFromBase = v end,
+})
+
+_G.DuplicateActive = false
+MainTab:CreateToggle({
+   Name = "📦 Duplicate Brainrot/Box (Loop)",
+   CurrentValue = false,
+   Callback = function(v) _G.DuplicateActive = v end,
+})
 
 MainTab:CreateButton({
-   Name = "🔥 ACTIVATE ALL (Unlock & Infinite Token)",
-   Callback = function() ForceUnlockEverything() end,
+   Name = "🚀 ACTIVATE ALL FUNCTIONS",
+   Callback = function() ActivateStealAndDuplicate() end,
 })
 
-MainTab:CreateButton({
-   Name = "📦 Duplicate Brainrot/Box",
-   Callback = function()
-       -- Scanner Otomatis mencari Remote untuk Duplikasi
-       for _, r in pairs(ReplicatedStorage:GetDescendants()) do
-           if r:IsA("RemoteEvent") and (r.Name:lower():find("spawn") or r.Name:lower():find("give")) then
-               for i = 1, 5 do r:FireServer() end
-           end
-       end
-   end,
-})
-
-local StealTab = Window:CreateTab("🥷 Steal & Take", 4483362458)
-_G.AutoTake = false
-StealTab:CreateToggle({
-   Name = "Auto Take Brainrot",
-   CurrentValue = false,
-   Callback = function(v) _G.AutoTake = v end,
-})
-
-_G.Steal = false
-StealTab:CreateToggle({
-   Name = "Steal From Players",
-   CurrentValue = false,
-   Callback = function(v) _G.Steal = v end,
-})
-
--- ============================================
--- RUNTIME LOOPS
--- ============================================
-
-task.spawn(function()
-    while task.wait(0.1) do
-        if _G.AutoTake then
-            for _, v in pairs(game.Workspace:GetDescendants()) do
-                if v:IsA("BasePart") and (v.Name:lower():find("brainrot") or v.Name:lower():find("token")) then
-                    player.Character.HumanoidRootPart.CFrame = v.CFrame
-                    task.wait(0.1)
-                end
-            end
-        end
-        if _G.Steal then
-            for _, p in pairs(Players:GetPlayers()) do
-                if p ~= player and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
-                    player.Character.HumanoidRootPart.CFrame = p.Character.HumanoidRootPart.CFrame
-                    task.wait(0.1)
-                end
-            end
-        end
-    end
-end)
-
-Rayfield:Notify({Title = "Nyemek HuB Ready", Content = "Klik Activate All untuk memulai!"})
+-- loadstring(game:HttpGet("https://raw.githubusercontent.com/Regall-art/Nyemek-HuB-Test-Script/refs/heads/main/Test.lua"))()
