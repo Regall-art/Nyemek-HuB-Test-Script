@@ -67,7 +67,7 @@ FPSTab:CreateParagraph({
 FPSTab:CreateSection("Main FPS Boost")
 
 FPSTab:CreateButton({
-   Name = "🚀 ULTRA FPS BOOST (All Optimizations)",
+   Name = "🚀 ULTRA FPS BOOST (Safe - Collision ON)",
    Callback = function()
       Settings.FPSBoost = true
       Settings.RemoveTextures = true
@@ -77,11 +77,11 @@ FPSTab:CreateButton({
       Settings.RemoveFog = true
       Settings.ReduceDrawDistance = true
       
-      ApplyAllOptimizations()
+      ApplyAllOptimizationsSafe()
       
       Rayfield:Notify({
-         Title = "Ultra FPS Boost",
-         Content = "All optimizations applied! FPS should increase significantly!",
+         Title = "Ultra FPS Boost (Safe)",
+         Content = "All optimizations applied! Parts remain walkable!",
          Duration = 5,
          Image = 4483362458,
       })
@@ -456,6 +456,27 @@ function ApplyAllOptimizations()
    print("✅ All optimizations applied!")
 end
 
+function ApplyAllOptimizationsSafe()
+   print("\n⚡ Applying ALL optimizations (SAFE MODE - Collision preserved)...")
+   
+   RemoveTextures()
+   RemoveParticles()
+   RemoveDecals()
+   RemoveShadows(true)
+   RemoveFog(true)
+   DisableLightingEffects(true)
+   -- ReduceDrawDistance will keep CanCollide ON
+   ReduceDrawDistance(true)
+   DisableAnimations(true)
+   -- ReducePhysics modified to not affect walkable surfaces
+   ReducePhysicsSafe(true)
+   RemoveTerrainTextures(true)
+   DisablePostProcessing(true)
+   OptimizeWorkspace()
+   
+   print("✅ All optimizations applied (collision preserved)!")
+end
+
 function ApplyPerformanceMode()
    print("\n⚡ Applying Performance Mode...")
    
@@ -651,12 +672,12 @@ function ReduceDrawDistance(enabled)
                local distance = (player.Character.HumanoidRootPart.Position - obj.Position).Magnitude
                if distance > 500 then
                   obj.Transparency = 1
-                  obj.CanCollide = false
+                  -- KEEP CanCollide = true so parts remain walkable!
                end
             end
          end)
       end
-      print("✅ Draw distance reduced")
+      print("✅ Draw distance reduced (CanCollide kept ON)")
    end
 end
 
@@ -672,7 +693,8 @@ function HideDistantObjects()
             if obj:IsA("BasePart") then
                local distance = (hrp.Position - obj.Position).Magnitude
                if distance > 1000 then
-                  obj.Parent = nil
+                  -- Make invisible but keep collision
+                  obj.Transparency = 1
                   hidden = hidden + 1
                end
             end
@@ -682,7 +704,7 @@ function HideDistantObjects()
    
    Rayfield:Notify({
       Title = "Objects Hidden",
-      Content = "Hidden " .. hidden .. " distant objects!",
+      Content = "Hidden " .. hidden .. " distant objects (collision kept)!",
       Duration = 3,
       Image = 4483362458,
    })
@@ -731,22 +753,27 @@ end
 function OptimizeWorkspace()
    print("\n⚙️ Optimizing workspace...")
    
-   -- Remove unnecessary parts
+   -- Optimize without disabling collisions
    for _, obj in pairs(Workspace:GetDescendants()) do
       pcall(function()
          if obj:IsA("BasePart") then
-            if obj.Transparency >= 0.95 then
-               obj.CanCollide = false
+            -- Only optimize rendering, keep physics intact
+            if obj.Transparency >= 0.98 then
+               -- Keep CanCollide true for walkable surfaces
+               -- Just optimize material
+               if obj.Material ~= Enum.Material.Air then
+                  obj.Material = Enum.Material.SmoothPlastic
+               end
             end
          end
       end)
    end
    
-   print("✅ Workspace optimized")
+   print("✅ Workspace optimized (collision preserved)")
    
    Rayfield:Notify({
       Title = "Workspace Optimized",
-      Content = "Workspace has been optimized!",
+      Content = "Workspace optimized (floors still walkable)!",
       Duration = 3,
       Image = 4483362458,
    })
@@ -783,6 +810,25 @@ function ReducePhysics(enabled)
       end
       
       print("✅ Physics quality reduced")
+   end
+end
+
+function ReducePhysicsSafe(enabled)
+   if enabled then
+      settings().Physics.AllowSleep = true
+      settings().Physics.PhysicsEnvironmentalThrottle = Enum.EnviromentalPhysicsThrottle.DefaultAuto
+      
+      for _, obj in pairs(Workspace:GetDescendants()) do
+         pcall(function()
+            if obj:IsA("BasePart") then
+               -- Only set massless, don't touch CanCollide
+               obj.Massless = true
+               -- Keep CanCollide as is (usually true for floors/walls)
+            end
+         end)
+      end
+      
+      print("✅ Physics quality reduced (collision preserved)")
    end
 end
 
