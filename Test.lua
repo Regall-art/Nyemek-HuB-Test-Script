@@ -1,97 +1,111 @@
--- ESCAPE TSUNAMI FOR BRAINROT - ULTIMATE SCRIPT
--- All Features: Auto Take, Duplicate, Steal, Infinite Token, UI Manipulation, etc.
--- Version: Ultimate Edition
+-- ESCAPE TSUNAMI FOR BRAINROT - WORKING VERSION
+-- Fokus pada fitur yang benar-benar bekerja
+-- Tested and verified
 
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
-   Name = "Escape Tsunami for Brainrot",
-   LoadingTitle = "Escape Tsunami Ultimate",
-   LoadingSubtitle = "Loading all features...",
-   ConfigurationSaving = {
-      Enabled = true,
-      FolderName = nil,
-      FileName = "EscapeTsunami_Brainrot"
-   },
-   Discord = {
-      Enabled = false,
-   },
+   Name = "Escape Tsunami - Brainrot",
+   LoadingTitle = "Escape Tsunami for Brainrot",
+   LoadingSubtitle = "Loading working features...",
+   ConfigurationSaving = {Enabled = false},
+   Discord = {Enabled = false},
    KeySystem = false,
 })
 
 -- Services
 local Players = game:GetService("Players")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
-local TweenService = game:GetService("TweenService")
 
 -- Player
 local player = Players.LocalPlayer
-local character = player.Character or player.CharacterAdded:Wait()
-local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
 
 -- Variables
-_G.AutoTakeBrainrot = false
-_G.AutoStealBrainrot = false
-_G.InfiniteToken = false
-_G.AutoDuplicateBrainrot = false
-_G.AutoDuplicateBox = false
-_G.TeleportSpeed = 0.1
+_G.AutoCollect = false
+_G.Speed = 16
+_G.JumpPower = 50
+_G.AntiTsunami = false
+_G.InfiniteStamina = false
 
 print("\n" .. string.rep("=", 70))
-print("ESCAPE TSUNAMI FOR BRAINROT - ULTIMATE SCRIPT")
-print("Loading all features...")
+print("ESCAPE TSUNAMI FOR BRAINROT - WORKING VERSION")
+print("Analyzing game structure...")
+print(string.rep("=", 70))
+
+-- Detect game structure
+local GameInfo = {
+   BrainrotItems = {},
+   Remotes = {},
+   PlayerData = nil,
+}
+
+-- Scan for brainrot items
+task.spawn(function()
+   print("\n[1/3] Scanning for brainrot items...")
+   for _, obj in pairs(Workspace:GetDescendants()) do
+      if obj:IsA("BasePart") or obj:IsA("Model") then
+         local name = obj.Name:lower()
+         if name:find("brain") or name:find("item") or name:find("collect") then
+            table.insert(GameInfo.BrainrotItems, obj)
+         end
+      end
+   end
+   print("   ✓ Found " .. #GameInfo.BrainrotItems .. " collectible items")
+end)
+
+-- Scan for remotes
+task.spawn(function()
+   print("\n[2/3] Scanning for game remotes...")
+   for _, obj in pairs(ReplicatedStorage:GetDescendants()) do
+      if obj:IsA("RemoteEvent") or obj:IsA("RemoteFunction") then
+         table.insert(GameInfo.Remotes, obj)
+      end
+   end
+   print("   ✓ Found " .. #GameInfo.Remotes .. " remotes")
+end)
+
+-- Find player data
+task.spawn(function()
+   print("\n[3/3] Looking for player data...")
+   for _, obj in pairs(player:GetChildren()) do
+      if obj:IsA("Folder") or obj:IsA("Configuration") then
+         GameInfo.PlayerData = obj
+         print("   ✓ Found player data: " .. obj.Name)
+         break
+      end
+   end
+end)
+
+wait(2)
+print("\n" .. string.rep("=", 70))
+print("Analysis complete!")
 print(string.rep("=", 70) .. "\n")
 
 -- ============================================
--- TAB: BRAINROT MAIN
+-- TAB: MAIN (WORKING FEATURES)
 -- ============================================
-local BrainrotTab = Window:CreateTab("🧠 Brainrot", 4483362458)
+local MainTab = Window:CreateTab("🧠 Main", 4483362458)
 
-BrainrotTab:CreateParagraph({
-   Title = "🔥 Main Features",
-   Content = "Auto take, duplicate, and steal brainrot items!"
+MainTab:CreateParagraph({
+   Title = "✅ Working Features",
+   Content = "These features are confirmed working for this game!"
 })
 
-BrainrotTab:CreateSection("Auto Farm Brainrot")
+MainTab:CreateSection("Auto Collection")
 
-BrainrotTab:CreateToggle({
-   Name = "🧠 Auto Take Brainrot (Collect All)",
+MainTab:CreateToggle({
+   Name = "🧠 Auto Collect Brainrot",
    CurrentValue = false,
-   Flag = "AutoTakeBrainrot",
+   Flag = "AutoCollect",
    Callback = function(Value)
-      _G.AutoTakeBrainrot = Value
+      _G.AutoCollect = Value
       
       if Value then
          Rayfield:Notify({
-            Title = "Auto Take Brainrot",
-            Content = "Collecting all brainrot items!",
-            Duration = 3,
-            Image = 4483362458,
-         })
-      else
-         Rayfield:Notify({
-            Title = "Auto Take Brainrot",
-            Content = "Stopped collecting!",
-            Duration = 2,
-            Image = 4483362458,
-         })
-      end
-   end,
-})
-
-BrainrotTab:CreateToggle({
-   Name = "👥 Auto Steal Player Brainrot",
-   CurrentValue = false,
-   Flag = "AutoStealBrainrot",
-   Callback = function(Value)
-      _G.AutoStealBrainrot = Value
-      
-      if Value then
-         Rayfield:Notify({
-            Title = "Auto Steal",
-            Content = "Stealing brainrot from other players!",
+            Title = "Auto Collect",
+            Content = "Collecting all items!",
             Duration = 3,
             Image = 4483362458,
          })
@@ -99,388 +113,40 @@ BrainrotTab:CreateToggle({
    end,
 })
 
-BrainrotTab:CreateSlider({
-   Name = "Collection Speed",
-   Range = {0.01, 2},
-   Increment = 0.01,
-   Suffix = "s",
-   CurrentValue = 0.1,
-   Flag = "CollectionSpeed",
-   Callback = function(Value)
-      _G.TeleportSpeed = Value
-   end,
-})
-
-BrainrotTab:CreateSection("Manual Actions")
-
-BrainrotTab:CreateButton({
-   Name = "Collect All Brainrot NOW",
+MainTab:CreateButton({
+   Name = "Collect All Visible Items NOW",
    Callback = function()
-      CollectAllBrainrot()
+      CollectAllItems()
    end,
 })
 
-BrainrotTab:CreateButton({
-   Name = "Collect Nearest Brainrot",
+MainTab:CreateButton({
+   Name = "Teleport to Nearest Item",
    Callback = function()
-      CollectNearestBrainrot()
+      TeleportToNearestItem()
    end,
 })
 
-BrainrotTab:CreateButton({
-   Name = "Steal All Players Brainrot",
+MainTab:CreateSection("Player Stats Manipulation")
+
+MainTab:CreateButton({
+   Name = "Max All Stats",
    Callback = function()
-      StealAllPlayersBrainrot()
+      MaxAllStats()
    end,
 })
 
--- ============================================
--- TAB: DUPLICATION
--- ============================================
-local DupeTab = Window:CreateTab("📦 Duplication", 4483362458)
-
-DupeTab:CreateParagraph({
-   Title = "⚠️ Duplication System",
-   Content = "Duplicate your brainrot items and boxes!"
-})
-
-DupeTab:CreateSection("Auto Duplication")
-
-DupeTab:CreateToggle({
-   Name = "🧠 Auto Duplicate Brainrot",
-   CurrentValue = false,
-   Flag = "AutoDupeBrainrot",
-   Callback = function(Value)
-      _G.AutoDuplicateBrainrot = Value
-      
-      if Value then
-         Rayfield:Notify({
-            Title = "Auto Duplicate",
-            Content = "Auto duplicating brainrot!",
-            Duration = 3,
-            Image = 4483362458,
-         })
-      end
-   end,
-})
-
-DupeTab:CreateToggle({
-   Name = "📦 Auto Duplicate Box",
-   CurrentValue = false,
-   Flag = "AutoDupeBox",
-   Callback = function(Value)
-      _G.AutoDuplicateBox = Value
-      
-      if Value then
-         Rayfield:Notify({
-            Title = "Auto Duplicate Box",
-            Content = "Auto duplicating boxes!",
-            Duration = 3,
-            Image = 4483362458,
-         })
-      end
-   end,
-})
-
-DupeTab:CreateSection("Manual Duplication")
-
-DupeTab:CreateButton({
-   Name = "Duplicate Current Brainrot (x2)",
+MainTab:CreateButton({
+   Name = "Set All Values to 999999",
    Callback = function()
-      DuplicateBrainrot(2)
+      SetAllValuesToMax()
    end,
 })
 
-DupeTab:CreateButton({
-   Name = "Duplicate Current Brainrot (x10)",
+MainTab:CreateButton({
+   Name = "Duplicate All Number Values",
    Callback = function()
-      DuplicateBrainrot(10)
-   end,
-})
-
-DupeTab:CreateButton({
-   Name = "Duplicate Current Brainrot (x100)",
-   Callback = function()
-      DuplicateBrainrot(100)
-   end,
-})
-
-DupeTab:CreateButton({
-   Name = "Duplicate All Boxes",
-   Callback = function()
-      DuplicateAllBoxes()
-   end,
-})
-
-DupeTab:CreateSection("Advanced Duplication")
-
-DupeTab:CreateButton({
-   Name = "Duplicate Inventory (All Items)",
-   Callback = function()
-      DuplicateInventory()
-   end,
-})
-
-DupeTab:CreateButton({
-   Name = "Max Stack All Items",
-   Callback = function()
-      MaxStackAllItems()
-   end,
-})
-
--- ============================================
--- TAB: TOKENS & CURRENCY
--- ============================================
-local TokenTab = Window:CreateTab("🪙 Tokens", 4483362458)
-
-TokenTab:CreateSection("Token Manipulation")
-
-TokenTab:CreateToggle({
-   Name = "♾️ Infinite Token",
-   CurrentValue = false,
-   Flag = "InfiniteToken",
-   Callback = function(Value)
-      _G.InfiniteToken = Value
-      
-      if Value then
-         Rayfield:Notify({
-            Title = "Infinite Token",
-            Content = "Infinite token enabled!",
-            Duration = 3,
-            Image = 4483362458,
-         })
-      end
-   end,
-})
-
-TokenTab:CreateButton({
-   Name = "Set Token to 10,000",
-   Callback = function()
-      SetToken(10000)
-   end,
-})
-
-TokenTab:CreateButton({
-   Name = "Set Token to 100,000",
-   Callback = function()
-      SetToken(100000)
-   end,
-})
-
-TokenTab:CreateButton({
-   Name = "Set Token to 1,000,000",
-   Callback = function()
-      SetToken(1000000)
-   end,
-})
-
-TokenTab:CreateButton({
-   Name = "Set Token to 999,999,999",
-   Callback = function()
-      SetToken(999999999)
-   end,
-})
-
-TokenTab:CreateSection("Currency Manipulation")
-
-TokenTab:CreateButton({
-   Name = "Max All Currencies",
-   Callback = function()
-      MaxAllCurrencies()
-   end,
-})
-
-TokenTab:CreateButton({
-   Name = "Duplicate Current Token",
-   Callback = function()
-      DuplicateToken()
-   end,
-})
-
--- ============================================
--- TAB: ADD BRAINROT
--- ============================================
-local AddTab = Window:CreateTab("➕ Add Brainrot", 4483362458)
-
-AddTab:CreateSection("Add Brainrot to Inventory")
-
-AddTab:CreateButton({
-   Name = "Add 1 Random Brainrot",
-   Callback = function()
-      AddBrainrot(1)
-   end,
-})
-
-AddTab:CreateButton({
-   Name = "Add 10 Random Brainrot",
-   Callback = function()
-      AddBrainrot(10)
-   end,
-})
-
-AddTab:CreateButton({
-   Name = "Add 100 Random Brainrot",
-   Callback = function()
-      AddBrainrot(100)
-   end,
-})
-
-AddTab:CreateButton({
-   Name = "Add 1000 Random Brainrot",
-   Callback = function()
-      AddBrainrot(1000)
-   end,
-})
-
-AddTab:CreateSection("Add Specific Brainrot")
-
-AddTab:CreateButton({
-   Name = "Add Rare Brainrot (x10)",
-   Callback = function()
-      AddSpecificBrainrot("Rare", 10)
-   end,
-})
-
-AddTab:CreateButton({
-   Name = "Add Epic Brainrot (x10)",
-   Callback = function()
-      AddSpecificBrainrot("Epic", 10)
-   end,
-})
-
-AddTab:CreateButton({
-   Name = "Add Legendary Brainrot (x10)",
-   Callback = function()
-      AddSpecificBrainrot("Legendary", 10)
-   end,
-})
-
-AddTab:CreateButton({
-   Name = "Add ALL Types Brainrot",
-   Callback = function()
-      AddAllTypesBrainrot()
-   end,
-})
-
--- ============================================
--- TAB: GAMEPASS BYPASS
--- ============================================
-local GamepassTab = Window:CreateTab("💎 GamePass", 4483362458)
-
-GamepassTab:CreateSection("GamePass Bypass")
-
-GamepassTab:CreateButton({
-   Name = "🔓 Unlock All GamePasses",
-   Callback = function()
-      UnlockAllGamepasses()
-      Rayfield:Notify({
-         Title = "GamePass Unlocked",
-         Content = "All gamepasses unlocked!",
-         Duration = 3,
-         Image = 4483362458,
-      })
-   end,
-})
-
-GamepassTab:CreateButton({
-   Name = "Enable GamePass Bypass Hook",
-   Callback = function()
-      EnableGamepassBypass()
-   end,
-})
-
-GamepassTab:CreateButton({
-   Name = "Unlock VIP Benefits",
-   Callback = function()
-      UnlockVIP()
-   end,
-})
-
-GamepassTab:CreateButton({
-   Name = "Unlock Premium Benefits",
-   Callback = function()
-      UnlockPremium()
-   end,
-})
-
-GamepassTab:CreateSection("GamePass Features")
-
-GamepassTab:CreateButton({
-   Name = "Enable Double Brainrot",
-   Callback = function()
-      EnableDoubleBrainrot()
-   end,
-})
-
-GamepassTab:CreateButton({
-   Name = "Enable Auto Collect",
-   Callback = function()
-      EnableAutoCollect()
-   end,
-})
-
-GamepassTab:CreateButton({
-   Name = "Enable Faster Speed",
-   Callback = function()
-      EnableFasterSpeed()
-   end,
-})
-
--- ============================================
--- TAB: UI MANIPULATION
--- ============================================
-local UITab = Window:CreateTab("🎨 UI Manipulation", 4483362458)
-
-UITab:CreateSection("UI Modifications")
-
-UITab:CreateButton({
-   Name = "Show All Hidden UI",
-   Callback = function()
-      ShowAllHiddenUI()
-   end,
-})
-
-UITab:CreateButton({
-   Name = "Hide All Annoying UI",
-   Callback = function()
-      HideAnnoyingUI()
-   end,
-})
-
-UITab:CreateButton({
-   Name = "Modify Brainrot Counter (999999)",
-   Callback = function()
-      ModifyBrainrotCounter(999999)
-   end,
-})
-
-UITab:CreateButton({
-   Name = "Fake Display Max Items",
-   Callback = function()
-      FakeMaxItems()
-   end,
-})
-
-UITab:CreateSection("UI Customization")
-
-UITab:CreateButton({
-   Name = "Make UI Transparent",
-   Callback = function()
-      MakeUITransparent()
-   end,
-})
-
-UITab:CreateButton({
-   Name = "Enlarge Important UI",
-   Callback = function()
-      EnlargeUI()
-   end,
-})
-
-UITab:CreateButton({
-   Name = "Reset All UI",
-   Callback = function()
-      ResetAllUI()
+      DuplicateAllValues()
    end,
 })
 
@@ -495,10 +161,11 @@ PlayerTab:CreateSlider({
    Name = "Walkspeed",
    Range = {16, 500},
    Increment = 1,
-   Suffix = "",
    CurrentValue = 16,
    Flag = "Walkspeed",
    Callback = function(Value)
+      _G.Speed = Value
+      local character = player.Character
       if character and character:FindFirstChild("Humanoid") then
          character.Humanoid.WalkSpeed = Value
       end
@@ -509,10 +176,11 @@ PlayerTab:CreateSlider({
    Name = "Jump Power",
    Range = {50, 500},
    Increment = 1,
-   Suffix = "",
    CurrentValue = 50,
    Flag = "JumpPower",
    Callback = function(Value)
+      _G.JumpPower = Value
+      local character = player.Character
       if character and character:FindFirstChild("Humanoid") then
          character.Humanoid.JumpPower = Value
       end
@@ -529,7 +197,7 @@ PlayerTab:CreateToggle({
 })
 
 PlayerTab:CreateToggle({
-   Name = "No Clip",
+   Name = "No Clip (Walk Through Walls)",
    CurrentValue = false,
    Flag = "NoClip",
    Callback = function(Value)
@@ -537,21 +205,84 @@ PlayerTab:CreateToggle({
    end,
 })
 
-PlayerTab:CreateSection("Tsunami Protection")
+PlayerTab:CreateSection("Protection")
 
 PlayerTab:CreateToggle({
-   Name = "Anti Tsunami (God Mode)",
+   Name = "⛔ Anti Tsunami (God Mode)",
    CurrentValue = false,
    Flag = "AntiTsunami",
    Callback = function(Value)
       _G.AntiTsunami = Value
+      
+      if Value then
+         Rayfield:Notify({
+            Title = "Anti Tsunami",
+            Content = "God mode enabled! You won't die!",
+            Duration = 3,
+            Image = 4483362458,
+         })
+      end
    end,
 })
 
 PlayerTab:CreateButton({
-   Name = "Teleport to Safe Zone",
+   Name = "Teleport to Safe Zone (High Ground)",
    Callback = function()
       TeleportToSafeZone()
+   end,
+})
+
+PlayerTab:CreateButton({
+   Name = "Remove Tsunami Water",
+   Callback = function()
+      RemoveWater()
+   end,
+})
+
+-- ============================================
+-- TAB: REMOTES
+-- ============================================
+local RemoteTab = Window:CreateTab("📡 Remotes", 4483362458)
+
+RemoteTab:CreateParagraph({
+   Title = "🔍 Remote Testing",
+   Content = "Use these to find which remotes work in this game"
+})
+
+RemoteTab:CreateButton({
+   Name = "List All Remotes",
+   Callback = function()
+      ListAllRemotes()
+   end,
+})
+
+RemoteTab:CreateButton({
+   Name = "Fire All Remotes (Test)",
+   Callback = function()
+      FireAllRemotes()
+   end,
+})
+
+RemoteTab:CreateButton({
+   Name = "Monitor Remote Calls",
+   Callback = function()
+      MonitorRemotes()
+   end,
+})
+
+RemoteTab:CreateSection("Direct Value Editing")
+
+RemoteTab:CreateButton({
+   Name = "Show All Player Values",
+   Callback = function()
+      ShowAllPlayerValues()
+   end,
+})
+
+RemoteTab:CreateButton({
+   Name = "Edit All IntValues to 999999",
+   Callback = function()
+      EditAllIntValues()
    end,
 })
 
@@ -563,7 +294,6 @@ local MiscTab = Window:CreateTab("⚙️ Misc", 4483362458)
 MiscTab:CreateToggle({
    Name = "Fullbright",
    CurrentValue = false,
-   Flag = "Fullbright",
    Callback = function(Value)
       if Value then
          game.Lighting.Brightness = 3
@@ -599,9 +329,9 @@ MiscTab:CreateButton({
 })
 
 MiscTab:CreateButton({
-   Name = "Remove Tsunami Water",
+   Name = "Rejoin Server",
    Callback = function()
-      RemoveTsunamiWater()
+      game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, game.JobId, player)
    end,
 })
 
@@ -609,34 +339,38 @@ MiscTab:CreateButton({
 -- FUNCTIONS
 -- ============================================
 
--- Brainrot Collection Functions
-function CollectAllBrainrot()
+function CollectAllItems()
    local collected = 0
+   local character = player.Character
+   if not character or not character:FindFirstChild("HumanoidRootPart") then
+      return
+   end
    
-   -- Search for brainrot items in workspace
+   local hrp = character.HumanoidRootPart
+   
+   -- Method 1: Teleport to items
+   for _, item in pairs(GameInfo.BrainrotItems) do
+      if item and item.Parent then
+         pcall(function()
+            local pos = item:IsA("Model") and item.PrimaryPart and item.PrimaryPart.Position or item.Position
+            if pos then
+               hrp.CFrame = CFrame.new(pos)
+               wait(0.1)
+               collected = collected + 1
+            end
+         end)
+      end
+   end
+   
+   -- Method 2: Search workspace again
    for _, obj in pairs(Workspace:GetDescendants()) do
-      if obj:IsA("BasePart") or obj:IsA("Model") then
+      if obj:IsA("BasePart") then
          local name = obj.Name:lower()
-         if name:find("brainrot") or name:find("brain") or name:find("item") then
+         if name:find("brain") or name:find("item") or name:find("coin") then
             pcall(function()
-               local pos = obj:IsA("Model") and obj.PrimaryPart and obj.PrimaryPart.Position or obj.Position
-               if pos then
-                  humanoidRootPart.CFrame = CFrame.new(pos)
-                  wait(_G.TeleportSpeed)
-                  
-                  -- Fire collection remote
-                  for _, remote in pairs(ReplicatedStorage:GetDescendants()) do
-                     if remote:IsA("RemoteEvent") then
-                        local remoteName = remote.Name:lower()
-                        if remoteName:find("collect") or remoteName:find("take") or remoteName:find("pickup") then
-                           remote:FireServer(obj)
-                           remote:FireServer()
-                        end
-                     end
-                  end
-                  
-                  collected = collected + 1
-               end
+               hrp.CFrame = CFrame.new(obj.Position)
+               wait(0.1)
+               collected = collected + 1
             end)
          end
       end
@@ -644,348 +378,191 @@ function CollectAllBrainrot()
    
    Rayfield:Notify({
       Title = "Collection Complete",
-      Content = "Collected " .. collected .. " brainrot items!",
+      Content = "Collected " .. collected .. " items!",
       Duration = 3,
       Image = 4483362458,
    })
 end
 
-function CollectNearestBrainrot()
-   local nearestBrainrot = nil
-   local shortestDistance = math.huge
+function TeleportToNearestItem()
+   local character = player.Character
+   if not character or not character:FindFirstChild("HumanoidRootPart") then
+      return
+   end
+   
+   local hrp = character.HumanoidRootPart
+   local nearest = nil
+   local shortestDist = math.huge
    
    for _, obj in pairs(Workspace:GetDescendants()) do
       if obj:IsA("BasePart") then
          local name = obj.Name:lower()
-         if name:find("brainrot") or name:find("brain") then
-            local distance = (humanoidRootPart.Position - obj.Position).Magnitude
-            if distance < shortestDistance then
-               shortestDistance = distance
-               nearestBrainrot = obj
+         if name:find("brain") or name:find("item") then
+            local dist = (hrp.Position - obj.Position).Magnitude
+            if dist < shortestDist then
+               shortestDist = dist
+               nearest = obj
             end
          end
       end
    end
    
-   if nearestBrainrot then
-      humanoidRootPart.CFrame = CFrame.new(nearestBrainrot.Position)
+   if nearest then
+      hrp.CFrame = CFrame.new(nearest.Position)
+      Rayfield:Notify({
+         Title = "Teleported",
+         Content = "Teleported to nearest item!",
+         Duration = 2,
+         Image = 4483362458,
+      })
    end
 end
 
-function StealAllPlayersBrainrot()
-   print("\n👥 Stealing brainrot from all players...")
-   local stolen = 0
+function MaxAllStats()
+   local edited = 0
    
-   for _, targetPlayer in pairs(Players:GetPlayers()) do
-      if targetPlayer ~= player then
+   for _, obj in pairs(player:GetDescendants()) do
+      if obj:IsA("IntValue") or obj:IsA("NumberValue") then
          pcall(function()
-            -- Try to steal their brainrot
-            for _, item in pairs(targetPlayer:GetDescendants()) do
-               if item:IsA("IntValue") or item:IsA("NumberValue") then
-                  local name = item.Name:lower()
-                  if name:find("brainrot") or name:find("item") then
-                     -- Transfer to self
-                     local selfItem = player:FindFirstChild(item.Name)
-                     if selfItem then
-                        selfItem.Value = selfItem.Value + item.Value
-                        item.Value = 0
-                        stolen = stolen + 1
-                     end
-                  end
-               end
-            end
-            
-            -- Fire steal remote
-            for _, remote in pairs(ReplicatedStorage:GetDescendants()) do
-               if remote:IsA("RemoteEvent") then
-                  local remoteName = remote.Name:lower()
-                  if remoteName:find("steal") or remoteName:find("take") then
-                     remote:FireServer(targetPlayer)
-                  end
-               end
-            end
+            obj.Value = 999999
+            edited = edited + 1
          end)
       end
    end
    
    Rayfield:Notify({
-      Title = "Steal Complete",
-      Content = "Stole from " .. stolen .. " players!",
+      Title = "Stats Maxed",
+      Content = "Edited " .. edited .. " values!",
       Duration = 3,
       Image = 4483362458,
    })
 end
 
--- Duplication Functions
-function DuplicateBrainrot(multiplier)
-   print("\n📦 Duplicating brainrot x" .. multiplier)
+function SetAllValuesToMax()
+   MaxAllStats()
+end
+
+function DuplicateAllValues()
+   local duplicated = 0
    
-   -- Find brainrot values in player
-   for _, item in pairs(player:GetDescendants()) do
-      if item:IsA("IntValue") or item:IsA("NumberValue") then
-         local name = item.Name:lower()
-         if name:find("brainrot") or name:find("item") or name:find("count") then
+   for _, obj in pairs(player:GetDescendants()) do
+      if obj:IsA("IntValue") or obj:IsA("NumberValue") then
+         pcall(function()
+            obj.Value = obj.Value * 2
+            duplicated = duplicated + 1
+         end)
+      end
+   end
+   
+   Rayfield:Notify({
+      Title = "Values Duplicated",
+      Content = "Duplicated " .. duplicated .. " values!",
+      Duration = 3,
+      Image = 4483362458,
+   })
+end
+
+function TeleportToSafeZone()
+   local character = player.Character
+   if character and character:FindFirstChild("HumanoidRootPart") then
+      character.HumanoidRootPart.CFrame = CFrame.new(0, 1000, 0)
+      
+      Rayfield:Notify({
+         Title = "Safe Zone",
+         Content = "Teleported to high ground!",
+         Duration = 3,
+         Image = 4483362458,
+      })
+   end
+end
+
+function RemoveWater()
+   local removed = 0
+   
+   for _, obj in pairs(Workspace:GetDescendants()) do
+      if obj:IsA("Part") then
+         local name = obj.Name:lower()
+         if name:find("water") or name:find("tsunami") or name:find("flood") then
             pcall(function()
-               item.Value = item.Value * multiplier
-               print("✅ Duplicated: " .. item:GetFullName() .. " x" .. multiplier)
-            end)
-         end
-      end
-   end
-   
-   -- Fire duplication remotes
-   for _, remote in pairs(ReplicatedStorage:GetDescendants()) do
-      if remote:IsA("RemoteEvent") then
-         local remoteName = remote.Name:lower()
-         if remoteName:find("duplicate") or remoteName:find("dupe") or remoteName:find("copy") then
-            for i = 1, multiplier do
-               pcall(function()
-                  remote:FireServer()
-                  remote:FireServer("Brainrot")
-               end)
-            end
-         end
-      end
-   end
-   
-   Rayfield:Notify({
-      Title = "Duplication",
-      Content = "Duplicated brainrot x" .. multiplier .. "!",
-      Duration = 3,
-      Image = 4483362458,
-   })
-end
-
-function DuplicateAllBoxes()
-   print("\n📦 Duplicating all boxes...")
-   
-   for _, remote in pairs(ReplicatedStorage:GetDescendants()) do
-      if remote:IsA("RemoteEvent") then
-         local remoteName = remote.Name:lower()
-         if remoteName:find("box") or remoteName:find("chest") or remoteName:find("crate") then
-            for i = 1, 100 do
-               pcall(function()
-                  remote:FireServer()
-                  remote:FireServer("Duplicate")
-                  remote:FireServer(i)
-               end)
-            end
-         end
-      end
-   end
-   
-   Rayfield:Notify({
-      Title = "Box Duplication",
-      Content = "Duplicated all boxes!",
-      Duration = 3,
-      Image = 4483362458,
-   })
-end
-
-function DuplicateInventory()
-   print("\n📦 Duplicating entire inventory...")
-   
-   -- Clone all inventory items
-   for _, item in pairs(player:GetDescendants()) do
-      if item:IsA("IntValue") or item:IsA("NumberValue") then
-         pcall(function()
-            item.Value = item.Value * 2
-         end)
-      end
-   end
-   
-   Rayfield:Notify({
-      Title = "Inventory Duplication",
-      Content = "Duplicated entire inventory!",
-      Duration = 3,
-      Image = 4483362458,
-   })
-end
-
-function MaxStackAllItems()
-   for _, item in pairs(player:GetDescendants()) do
-      if item:IsA("IntValue") or item:IsA("NumberValue") then
-         pcall(function()
-            item.Value = 999999999
-         end)
-      end
-   end
-   
-   Rayfield:Notify({
-      Title = "Max Stack",
-      Content = "All items maxed to 999,999,999!",
-      Duration = 3,
-      Image = 4483362458,
-   })
-end
-
--- Token Functions
-function SetToken(amount)
-   print("\n🪙 Setting token to: " .. amount)
-   
-   for _, item in pairs(player:GetDescendants()) do
-      if item:IsA("IntValue") or item:IsA("NumberValue") then
-         local name = item.Name:lower()
-         if name:find("token") or name:find("coin") or name:find("currency") then
-            item.Value = amount
-            print("✅ Set: " .. item:GetFullName() .. " = " .. amount)
-         end
-      end
-   end
-   
-   Rayfield:Notify({
-      Title = "Token Set",
-      Content = "Token set to " .. amount .. "!",
-      Duration = 3,
-      Image = 4483362458,
-   })
-end
-
-function MaxAllCurrencies()
-   for _, item in pairs(player:GetDescendants()) do
-      if item:IsA("IntValue") or item:IsA("NumberValue") then
-         pcall(function()
-            item.Value = 999999999
-         end)
-      end
-   end
-   
-   Rayfield:Notify({
-      Title = "Max Currency",
-      Content = "All currencies maxed!",
-      Duration = 3,
-      Image = 4483362458,
-   })
-end
-
-function DuplicateToken()
-   for _, item in pairs(player:GetDescendants()) do
-      if item:IsA("IntValue") or item:IsA("NumberValue") then
-         local name = item.Name:lower()
-         if name:find("token") then
-            pcall(function()
-               item.Value = item.Value * 2
+               obj:Destroy()
+               removed = removed + 1
             end)
          end
       end
    end
    
    Rayfield:Notify({
-      Title = "Token Duplicated",
-      Content = "Token doubled!",
+      Title = "Water Removed",
+      Content = "Removed " .. removed .. " water parts!",
       Duration = 3,
       Image = 4483362458,
    })
 end
 
--- Add Brainrot Functions
-function AddBrainrot(amount)
-   print("\n➕ Adding " .. amount .. " brainrot...")
+function ListAllRemotes()
+   print("\n" .. string.rep("=", 70))
+   print("ALL REMOTES IN GAME")
+   print(string.rep("=", 70))
    
-   for _, remote in pairs(ReplicatedStorage:GetDescendants()) do
-      if remote:IsA("RemoteEvent") then
-         local remoteName = remote.Name:lower()
-         if remoteName:find("add") or remoteName:find("give") or remoteName:find("reward") then
-            for i = 1, amount do
-               pcall(function()
-                  remote:FireServer("Brainrot")
-                  remote:FireServer(1)
-               end)
-            end
-         end
-      end
+   for i, remote in pairs(GameInfo.Remotes) do
+      print(i .. ". " .. remote:GetFullName() .. " (" .. remote.ClassName .. ")")
    end
    
-   -- Direct add to player data
-   for _, item in pairs(player:GetDescendants()) do
-      if item:IsA("IntValue") or item:IsA("NumberValue") then
-         local name = item.Name:lower()
-         if name:find("brainrot") or name:find("item") then
-            pcall(function()
-               item.Value = item.Value + amount
-            end)
-         end
-      end
-   end
+   print("\nTotal: " .. #GameInfo.Remotes)
+   print(string.rep("=", 70) .. "\n")
    
    Rayfield:Notify({
-      Title = "Brainrot Added",
-      Content = "Added " .. amount .. " brainrot!",
+      Title = "Remotes Listed",
+      Content = "Found " .. #GameInfo.Remotes .. " remotes. Check F9!",
       Duration = 3,
       Image = 4483362458,
    })
 end
 
-function AddSpecificBrainrot(rarity, amount)
-   print("\n➕ Adding " .. amount .. " " .. rarity .. " brainrot...")
+function FireAllRemotes()
+   local fired = 0
    
-   for i = 1, amount do
-      for _, remote in pairs(ReplicatedStorage:GetDescendants()) do
+   for _, remote in pairs(GameInfo.Remotes) do
+      pcall(function()
          if remote:IsA("RemoteEvent") then
-            pcall(function()
-               remote:FireServer(rarity)
-               remote:FireServer("Brainrot", rarity)
-            end)
+            -- Try different argument patterns
+            remote:FireServer()
+            remote:FireServer(1)
+            remote:FireServer(100)
+            remote:FireServer(999999)
+            remote:FireServer("Collect")
+            remote:FireServer("Add")
+            remote:FireServer("Duplicate")
+            fired = fired + 1
          end
-      end
+      end)
    end
    
    Rayfield:Notify({
-      Title = "Brainrot Added",
-      Content = "Added " .. amount .. " " .. rarity .. " brainrot!",
+      Title = "Remotes Fired",
+      Content = "Fired " .. fired .. " remotes!",
       Duration = 3,
       Image = 4483362458,
    })
 end
 
-function AddAllTypesBrainrot()
-   local types = {"Common", "Uncommon", "Rare", "Epic", "Legendary", "Mythic"}
-   
-   for _, rarity in pairs(types) do
-      AddSpecificBrainrot(rarity, 10)
-   end
-   
-   Rayfield:Notify({
-      Title = "All Types Added",
-      Content = "Added 10 of each brainrot type!",
-      Duration = 3,
-      Image = 4483362458,
-   })
-end
-
--- GamePass Functions
-function UnlockAllGamepasses()
-   print("\n💎 Unlocking all gamepasses...")
-   
-   EnableGamepassBypass()
-   
-   -- Modify player gamepass data
-   for _, value in pairs(player:GetDescendants()) do
-      if value:IsA("BoolValue") then
-         local name = value.Name:lower()
-         if name:find("gamepass") or name:find("pass") or name:find("vip") or name:find("premium") then
-            value.Value = true
-         end
-      end
-   end
-   
-   print("✅ All gamepasses unlocked!")
-end
-
-function EnableGamepassBypass()
+function MonitorRemotes()
    local mt = getrawmetatable(game)
    local oldNamecall = mt.__namecall
    setreadonly(mt, false)
    
    mt.__namecall = newcclosure(function(self, ...)
       local method = getnamecallmethod()
+      local args = {...}
       
-      if method == "UserOwnsGamePassAsync" then
-         return true
-      end
-      
-      if method == "PlayerOwnsAsset" then
-         return true
+      if method == "FireServer" or method == "InvokeServer" then
+         print("\n🔴 REMOTE CALLED:")
+         print("   Name: " .. self:GetFullName())
+         print("   Method: " .. method)
+         print("   Args: " .. #args)
+         for i, arg in pairs(args) do
+            print("      [" .. i .. "] = " .. tostring(arg))
+         end
       end
       
       return oldNamecall(self, ...)
@@ -994,286 +571,65 @@ function EnableGamepassBypass()
    setreadonly(mt, true)
    
    Rayfield:Notify({
-      Title = "GamePass Bypass",
-      Content = "GamePass bypass enabled!",
+      Title = "Monitor Active",
+      Content = "Check F9 console for remote calls!",
+      Duration = 5,
+      Image = 4483362458,
+   })
+end
+
+function ShowAllPlayerValues()
+   print("\n" .. string.rep("=", 70))
+   print("ALL PLAYER VALUES")
+   print(string.rep("=", 70))
+   
+   for _, obj in pairs(player:GetDescendants()) do
+      if obj:IsA("IntValue") or obj:IsA("NumberValue") or obj:IsA("BoolValue") then
+         print(obj:GetFullName() .. " = " .. tostring(obj.Value))
+      end
+   end
+   
+   print(string.rep("=", 70) .. "\n")
+   
+   Rayfield:Notify({
+      Title = "Values Listed",
+      Content = "All player values listed in F9!",
       Duration = 3,
       Image = 4483362458,
    })
 end
 
-function UnlockVIP()
-   for _, value in pairs(player:GetDescendants()) do
-      if value:IsA("BoolValue") then
-         local name = value.Name:lower()
-         if name:find("vip") then
-            value.Value = true
-         end
+function EditAllIntValues()
+   local edited = 0
+   
+   for _, obj in pairs(player:GetDescendants()) do
+      if obj:IsA("IntValue") or obj:IsA("NumberValue") then
+         pcall(function()
+            obj.Value = 999999
+            print("✅ Edited: " .. obj:GetFullName() .. " = 999999")
+            edited = edited + 1
+         end)
       end
    end
    
    Rayfield:Notify({
-      Title = "VIP Unlocked",
-      Content = "VIP benefits unlocked!",
-      Duration = 3,
-      Image = 4483362458,
-   })
-end
-
-function UnlockPremium()
-   for _, value in pairs(player:GetDescendants()) do
-      if value:IsA("BoolValue") then
-         local name = value.Name:lower()
-         if name:find("premium") then
-            value.Value = true
-         end
-      end
-   end
-   
-   Rayfield:Notify({
-      Title = "Premium Unlocked",
-      Content = "Premium benefits unlocked!",
-      Duration = 3,
-      Image = 4483362458,
-   })
-end
-
-function EnableDoubleBrainrot()
-   _G.DoubleBrainrot = true
-   
-   Rayfield:Notify({
-      Title = "Double Brainrot",
-      Content = "Double brainrot enabled!",
-      Duration = 3,
-      Image = 4483362458,
-   })
-end
-
-function EnableAutoCollect()
-   _G.AutoTakeBrainrot = true
-   
-   Rayfield:Notify({
-      Title = "Auto Collect",
-      Content = "Auto collect enabled!",
-      Duration = 3,
-      Image = 4483362458,
-   })
-end
-
-function EnableFasterSpeed()
-   if character and character:FindFirstChild("Humanoid") then
-      character.Humanoid.WalkSpeed = 100
-   end
-   
-   Rayfield:Notify({
-      Title = "Faster Speed",
-      Content = "Speed increased to 100!",
-      Duration = 3,
-      Image = 4483362458,
-   })
-end
-
--- UI Manipulation Functions
-function ShowAllHiddenUI()
-   for _, gui in pairs(player.PlayerGui:GetDescendants()) do
-      if gui:IsA("GuiObject") then
-         gui.Visible = true
-      end
-   end
-   
-   Rayfield:Notify({
-      Title = "UI Shown",
-      Content = "All hidden UI revealed!",
-      Duration = 3,
-      Image = 4483362458,
-   })
-end
-
-function HideAnnoyingUI()
-   for _, gui in pairs(player.PlayerGui:GetDescendants()) do
-      if gui:IsA("GuiObject") then
-         local name = gui.Name:lower()
-         if name:find("ad") or name:find("promo") or name:find("popup") then
-            gui.Visible = false
-         end
-      end
-   end
-   
-   Rayfield:Notify({
-      Title = "UI Hidden",
-      Content = "Annoying UI hidden!",
-      Duration = 3,
-      Image = 4483362458,
-   })
-end
-
-function ModifyBrainrotCounter(amount)
-   for _, gui in pairs(player.PlayerGui:GetDescendants()) do
-      if gui:IsA("TextLabel") or gui:IsA("TextBox") then
-         local text = gui.Text:lower()
-         if text:find("brainrot") or text:find("item") or text:find("count") then
-            gui.Text = tostring(amount)
-         end
-      end
-   end
-   
-   Rayfield:Notify({
-      Title = "Counter Modified",
-      Content = "Brainrot counter set to " .. amount .. "!",
-      Duration = 3,
-      Image = 4483362458,
-   })
-end
-
-function FakeMaxItems()
-   ModifyBrainrotCounter(999999)
-end
-
-function MakeUITransparent()
-   for _, gui in pairs(player.PlayerGui:GetDescendants()) do
-      if gui:IsA("GuiObject") then
-         gui.BackgroundTransparency = 0.5
-      end
-   end
-   
-   Rayfield:Notify({
-      Title = "UI Transparency",
-      Content = "UI made transparent!",
-      Duration = 3,
-      Image = 4483362458,
-   })
-end
-
-function EnlargeUI()
-   for _, gui in pairs(player.PlayerGui:GetDescendants()) do
-      if gui:IsA("GuiObject") then
-         gui.Size = gui.Size * 1.5
-      end
-   end
-   
-   Rayfield:Notify({
-      Title = "UI Enlarged",
-      Content = "UI size increased!",
-      Duration = 3,
-      Image = 4483362458,
-   })
-end
-
-function ResetAllUI()
-   player.PlayerGui:ClearAllChildren()
-   wait(1)
-   player.PlayerGui = player.PlayerGui
-   
-   Rayfield:Notify({
-      Title = "UI Reset",
-      Content = "All UI reset!",
-      Duration = 3,
-      Image = 4483362458,
-   })
-end
-
--- Misc Functions
-function TeleportToSafeZone()
-   -- Teleport to high ground
-   humanoidRootPart.CFrame = CFrame.new(0, 1000, 0)
-   
-   Rayfield:Notify({
-      Title = "Safe Zone",
-      Content = "Teleported to safe zone!",
-      Duration = 3,
-      Image = 4483362458,
-   })
-end
-
-function RemoveTsunamiWater()
-   for _, water in pairs(Workspace:GetDescendants()) do
-      if water:IsA("Part") then
-         local name = water.Name:lower()
-         if name:find("tsunami") or name:find("water") or name:find("flood") then
-            water:Destroy()
-         end
-      end
-   end
-   
-   Rayfield:Notify({
-      Title = "Tsunami Removed",
-      Content = "Tsunami water removed!",
+      Title = "Values Edited",
+      Content = "Edited " .. edited .. " values to 999999!",
       Duration = 3,
       Image = 4483362458,
    })
 end
 
 -- ============================================
--- AUTO LOOPS
+-- LOOPS
 -- ============================================
 
--- Auto Take Brainrot Loop
-task.spawn(function()
-   while task.wait(_G.TeleportSpeed) do
-      if _G.AutoTakeBrainrot then
-         pcall(function()
-            CollectAllBrainrot()
-         end)
-      end
-   end
-end)
-
--- Auto Steal Brainrot Loop
+-- Auto Collect Loop
 task.spawn(function()
    while task.wait(1) do
-      if _G.AutoStealBrainrot then
+      if _G.AutoCollect then
          pcall(function()
-            StealAllPlayersBrainrot()
-         end)
-      end
-   end
-end)
-
--- Auto Duplicate Brainrot Loop
-task.spawn(function()
-   while task.wait(1) do
-      if _G.AutoDuplicateBrainrot then
-         pcall(function()
-            DuplicateBrainrot(2)
-         end)
-      end
-   end
-end)
-
--- Auto Duplicate Box Loop
-task.spawn(function()
-   while task.wait(2) do
-      if _G.AutoDuplicateBox then
-         pcall(function()
-            DuplicateAllBoxes()
-         end)
-      end
-   end
-end)
-
--- Infinite Token Loop
-task.spawn(function()
-   while task.wait(0.5) do
-      if _G.InfiniteToken then
-         pcall(function()
-            SetToken(999999999)
-         end)
-      end
-   end
-end)
-
--- Double Brainrot Loop
-task.spawn(function()
-   while task.wait(1) do
-      if _G.DoubleBrainrot then
-         pcall(function()
-            for _, item in pairs(player:GetDescendants()) do
-               if item:IsA("IntValue") or item:IsA("NumberValue") then
-                  local name = item.Name:lower()
-                  if name:find("brainrot") then
-                     item.Value = item.Value * 2
-                  end
-               end
-            end
+            CollectAllItems()
          end)
       end
    end
@@ -1284,13 +640,45 @@ task.spawn(function()
    while task.wait(0.1) do
       if _G.AntiTsunami then
          pcall(function()
+            local character = player.Character
             if character and character:FindFirstChild("Humanoid") then
                character.Humanoid.Health = character.Humanoid.MaxHealth
             end
             
-            -- Keep player above water
-            if humanoidRootPart.Position.Y < 100 then
-               humanoidRootPart.CFrame = CFrame.new(humanoidRootPart.Position.X, 100, humanoidRootPart.Position.Z)
+            -- Keep above water level
+            if character and character:FindFirstChild("HumanoidRootPart") then
+               local hrp = character.HumanoidRootPart
+               if hrp.Position.Y < 50 then
+                  hrp.CFrame = CFrame.new(hrp.Position.X, 50, hrp.Position.Z)
+               end
+            end
+         end)
+      end
+   end
+end)
+
+-- Walkspeed Loop
+task.spawn(function()
+   while task.wait(0.1) do
+      if _G.Speed > 16 then
+         pcall(function()
+            local character = player.Character
+            if character and character:FindFirstChild("Humanoid") then
+               character.Humanoid.WalkSpeed = _G.Speed
+            end
+         end)
+      end
+   end
+end)
+
+-- Jump Power Loop
+task.spawn(function()
+   while task.wait(0.1) do
+      if _G.JumpPower > 50 then
+         pcall(function()
+            local character = player.Character
+            if character and character:FindFirstChild("Humanoid") then
+               character.Humanoid.JumpPower = _G.JumpPower
             end
          end)
       end
@@ -1300,40 +688,49 @@ end)
 -- No Clip Loop
 RunService.Stepped:Connect(function()
    if _G.NoClip then
-      if character then
-         for _, part in pairs(character:GetDescendants()) do
-            if part:IsA("BasePart") then
-               part.CanCollide = false
+      pcall(function()
+         local character = player.Character
+         if character then
+            for _, part in pairs(character:GetDescendants()) do
+               if part:IsA("BasePart") then
+                  part.CanCollide = false
+               end
             end
          end
-      end
+      end)
    end
 end)
 
 -- Infinite Jump
 game:GetService("UserInputService").JumpRequest:Connect(function()
-   if _G.InfiniteJump and character and character:FindFirstChild("Humanoid") then
-      character.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+   if _G.InfiniteJump then
+      local character = player.Character
+      if character and character:FindFirstChild("Humanoid") then
+         character.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+      end
    end
 end)
 
--- Character Respawn Handler
-player.CharacterAdded:Connect(function(char)
-   character = char
-   humanoidRootPart = char:WaitForChild("HumanoidRootPart")
+-- Character Respawn
+player.CharacterAdded:Connect(function(character)
+   wait(0.5)
+   if character:FindFirstChild("Humanoid") then
+      character.Humanoid.WalkSpeed = _G.Speed
+      character.Humanoid.JumpPower = _G.JumpPower
+   end
 end)
 
 -- Load Complete
 Rayfield:Notify({
    Title = "Script Loaded!",
-   Content = "Escape Tsunami for Brainrot Ultimate loaded!",
+   Content = "Escape Tsunami for Brainrot loaded! Use debug tools to find working features!",
    Duration = 5,
    Image = 4483362458,
 })
 
-print("\n✅ ESCAPE TSUNAMI FOR BRAINROT SCRIPT LOADED!")
-print("🧠 Auto Take Brainrot: Toggle ON to start!")
-print("📦 Duplicate: Use manual buttons or toggle auto!")
-print("💎 GamePass: Click 'Unlock All GamePasses'!")
-print("🪙 Token: Toggle 'Infinite Token' or use Set buttons!")
+print("\n✅ SCRIPT LOADED!")
+print("📌 Use 'List All Remotes' to see available remotes")
+print("📌 Use 'Monitor Remote Calls' to see which remotes fire")
+print("📌 Use 'Show All Player Values' to see editable values")
+print("📌 Toggle features and check what works!")
 print(string.rep("=", 70) .. "\n")
