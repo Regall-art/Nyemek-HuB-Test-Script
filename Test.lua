@@ -5,7 +5,7 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
-   Name = "FPS Optimizer & Anti Lag",
+   Name = "Nyemek HuB FPS Optimizer & Anti Lag",
    LoadingTitle = "FPS Booster",
    LoadingSubtitle = "Loading optimization tools...",
    ConfigurationSaving = {
