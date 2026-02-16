@@ -1,1013 +1,1095 @@
--- ROBLOX FPS OPTIMIZER - BEAUTIFUL CUSTOM UI
--- Modern design with smooth animations
--- Mirip Rayfield tapi lebih bagus!
+-- ROBLOX FPS OPTIMIZER & ANTI LAG - UNIVERSAL
+-- Works on ALL Roblox games
+-- Boost FPS, Reduce Lag, Optimize Performance
 
-local TweenService = game:GetService("TweenService")
-local UserInputService = game:GetService("UserInputService")
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+local Window = Rayfield:CreateWindow({
+   Name = "FPS Optimizer & Anti Lag",
+   LoadingTitle = "FPS Booster",
+   LoadingSubtitle = "Loading optimization tools...",
+   ConfigurationSaving = {
+      Enabled = true,
+      FolderName = nil,
+      FileName = "FPSOptimizer"
+   },
+   Discord = {
+      Enabled = false,
+   },
+   KeySystem = false,
+})
+
+-- Services
 local RunService = game:GetService("RunService")
-local Players = game:GetService("Players")
 local Lighting = game:GetService("Lighting")
+local Players = game:GetService("Players")
 local Workspace = game:GetService("Workspace")
+local UserInputService = game:GetService("UserInputService")
 
+-- Player
 local player = Players.LocalPlayer
-local playerGui = player:WaitForChild("PlayerGui")
+
+-- FPS Counter
+local FPSCounter = 0
+local LastUpdate = tick()
 
 -- Settings
 local Settings = {
    FPSBoost = false,
    RemoveTextures = false,
    RemoveParticles = false,
-   RemoveShadows = false,
-   RemoveFog = false,
-   ShowFPS = false,
-}
-
--- Theme Colors (Discord-like)
-local Theme = {
-   Background = Color3.fromRGB(32, 34, 37),
-   Secondary = Color3.fromRGB(47, 49, 54),
-   Tertiary = Color3.fromRGB(54, 57, 63),
-   Primary = Color3.fromRGB(88, 101, 242),
-   Success = Color3.fromRGB(67, 181, 129),
-   Warning = Color3.fromRGB(250, 166, 26),
-   Danger = Color3.fromRGB(237, 66, 69),
-   Text = Color3.fromRGB(255, 255, 255),
-   TextDark = Color3.fromRGB(142, 146, 151),
-   Accent = Color3.fromRGB(114, 137, 218),
+   RemoveTerrain = false,
+   LowGraphics = false,
+   DisableAnimations = false,
+   ReduceDrawDistance = false,
+   RemoveShadows = true,
+   RemoveFog = true,
+   RemoveDecals = false,
+   RemoveMeshes = false,
+   FPSCap = 0,
 }
 
 print("\n" .. string.rep("=", 70))
-print("FPS OPTIMIZER - CUSTOM UI LOADING")
+print("ROBLOX FPS OPTIMIZER & ANTI LAG")
+print("Universal script for all games")
 print(string.rep("=", 70) .. "\n")
 
--- Create ScreenGui
-local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "FPSOptimizerUI"
-ScreenGui.ResetOnSpawn = false
-ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-ScreenGui.Parent = playerGui
+-- ============================================
+-- TAB: FPS BOOST
+-- ============================================
+local FPSTab = Window:CreateTab("⚡ FPS Boost", 4483362458)
 
--- Blur Background
-local Blur = Instance.new("BlurEffect")
-Blur.Size = 0
-Blur.Parent = game.Lighting
-
--- Main Container
-local MainContainer = Instance.new("Frame")
-MainContainer.Name = "MainContainer"
-MainContainer.Size = UDim2.new(0, 0, 0, 0)
-MainContainer.Position = UDim2.new(0.5, 0, 0.5, 0)
-MainContainer.AnchorPoint = Vector2.new(0.5, 0.5)
-MainContainer.BackgroundTransparency = 1
-MainContainer.Parent = ScreenGui
-
--- Main Frame
-local MainFrame = Instance.new("Frame")
-MainFrame.Name = "MainFrame"
-MainFrame.Size = UDim2.new(1, 0, 1, 0)
-MainFrame.BackgroundColor3 = Theme.Background
-MainFrame.BorderSizePixel = 0
-MainFrame.ClipsDescendants = true
-MainFrame.Parent = MainContainer
-
-local MainCorner = Instance.new("UICorner")
-MainCorner.CornerRadius = UDim.new(0, 16)
-MainCorner.Parent = MainFrame
-
--- Drop Shadow
-local Shadow = Instance.new("ImageLabel")
-Shadow.Name = "Shadow"
-Shadow.AnchorPoint = Vector2.new(0.5, 0.5)
-Shadow.BackgroundTransparency = 1
-Shadow.Position = UDim2.new(0.5, 0, 0.5, 0)
-Shadow.Size = UDim2.new(1, 40, 1, 40)
-Shadow.ZIndex = -1
-Shadow.Image = "rbxassetid://5554236805"
-Shadow.ImageColor3 = Color3.fromRGB(0, 0, 0)
-Shadow.ImageTransparency = 0.3
-Shadow.ScaleType = Enum.ScaleType.Slice
-Shadow.SliceCenter = Rect.new(23, 23, 277, 277)
-Shadow.Parent = MainFrame
-
--- Topbar
-local Topbar = Instance.new("Frame")
-Topbar.Name = "Topbar"
-Topbar.Size = UDim2.new(1, 0, 0, 50)
-Topbar.BackgroundColor3 = Theme.Secondary
-Topbar.BorderSizePixel = 0
-Topbar.Parent = MainFrame
-
-local TopbarCorner = Instance.new("UICorner")
-TopbarCorner.CornerRadius = UDim.new(0, 16)
-TopbarCorner.Parent = Topbar
-
--- Cover bottom of topbar
-local TopbarCover = Instance.new("Frame")
-TopbarCover.Size = UDim2.new(1, 0, 0, 16)
-TopbarCover.Position = UDim2.new(0, 0, 1, -16)
-TopbarCover.BackgroundColor3 = Theme.Secondary
-TopbarCover.BorderSizePixel = 0
-TopbarCover.Parent = Topbar
-
--- Logo/Icon
-local Logo = Instance.new("ImageLabel")
-Logo.Size = UDim2.new(0, 30, 0, 30)
-Logo.Position = UDim2.new(0, 15, 0.5, -15)
-Logo.BackgroundTransparency = 1
-Logo.Image = "rbxassetid://7733964370" -- Thunder icon
-Logo.ImageColor3 = Theme.Primary
-Logo.Parent = Topbar
-
--- Title
-local Title = Instance.new("TextLabel")
-Title.Size = UDim2.new(0, 200, 1, 0)
-Title.Position = UDim2.new(0, 55, 0, 0)
-Title.BackgroundTransparency = 1
-Title.Text = "FPS OPTIMIZER"
-Title.TextColor3 = Theme.Text
-Title.TextSize = 16
-Title.Font = Enum.Font.GothamBold
-Title.TextXAlignment = Enum.TextXAlignment.Left
-Title.Parent = Topbar
-
--- Version
-local Version = Instance.new("TextLabel")
-Version.Size = UDim2.new(0, 50, 0, 18)
-Version.Position = UDim2.new(0, 55, 1, -22)
-Version.BackgroundTransparency = 1
-Version.Text = "v2.0"
-Version.TextColor3 = Theme.TextDark
-Version.TextSize = 11
-Version.Font = Enum.Font.Gotham
-Version.TextXAlignment = Enum.TextXAlignment.Left
-Version.Parent = Topbar
-
--- Close Button
-local CloseButton = Instance.new("TextButton")
-CloseButton.Size = UDim2.new(0, 40, 0, 40)
-CloseButton.Position = UDim2.new(1, -45, 0, 5)
-CloseButton.BackgroundColor3 = Theme.Tertiary
-CloseButton.BorderSizePixel = 0
-CloseButton.Text = ""
-CloseButton.AutoButtonColor = false
-CloseButton.Parent = Topbar
-
-local CloseCorner = Instance.new("UICorner")
-CloseCorner.CornerRadius = UDim.new(0, 8)
-CloseCorner.Parent = CloseButton
-
-local CloseIcon = Instance.new("TextLabel")
-CloseIcon.Size = UDim2.new(1, 0, 1, 0)
-CloseIcon.BackgroundTransparency = 1
-CloseIcon.Text = "×"
-CloseIcon.TextColor3 = Theme.TextDark
-CloseIcon.TextSize = 28
-CloseIcon.Font = Enum.Font.GothamBold
-CloseIcon.Parent = CloseButton
-
--- Minimize Button
-local MinimizeButton = Instance.new("TextButton")
-MinimizeButton.Size = UDim2.new(0, 40, 0, 40)
-MinimizeButton.Position = UDim2.new(1, -90, 0, 5)
-MinimizeButton.BackgroundColor3 = Theme.Tertiary
-MinimizeButton.BorderSizePixel = 0
-MinimizeButton.Text = ""
-MinimizeButton.AutoButtonColor = false
-MinimizeButton.Parent = Topbar
-
-local MinimizeCorner = Instance.new("UICorner")
-MinimizeCorner.CornerRadius = UDim.new(0, 8)
-MinimizeCorner.Parent = MinimizeButton
-
-local MinimizeIcon = Instance.new("TextLabel")
-MinimizeIcon.Size = UDim2.new(1, 0, 1, 0)
-MinimizeIcon.BackgroundTransparency = 1
-MinimizeIcon.Text = "−"
-MinimizeIcon.TextColor3 = Theme.TextDark
-MinimizeIcon.TextSize = 24
-MinimizeIcon.Font = Enum.Font.GothamBold
-MinimizeIcon.Parent = MinimizeButton
-
--- Content Container
-local ContentContainer = Instance.new("Frame")
-ContentContainer.Name = "ContentContainer"
-ContentContainer.Size = UDim2.new(1, -30, 1, -65)
-ContentContainer.Position = UDim2.new(0, 15, 0, 60)
-ContentContainer.BackgroundTransparency = 1
-ContentContainer.Parent = MainFrame
-
--- Scrolling Frame
-local ScrollFrame = Instance.new("ScrollingFrame")
-ScrollFrame.Size = UDim2.new(1, 0, 1, 0)
-ScrollFrame.BackgroundTransparency = 1
-ScrollFrame.BorderSizePixel = 0
-ScrollFrame.ScrollBarThickness = 6
-ScrollFrame.ScrollBarImageColor3 = Theme.Primary
-ScrollFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
-ScrollFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
-ScrollFrame.Parent = ContentContainer
-
-local ScrollPadding = Instance.new("UIPadding")
-ScrollPadding.PaddingRight = UDim.new(0, 10)
-ScrollPadding.Parent = ScrollFrame
-
-local ListLayout = Instance.new("UIListLayout")
-ListLayout.Padding = UDim.new(0, 12)
-ListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-ListLayout.Parent = ScrollFrame
-
--- FPS Counter
-local FPSFrame = Instance.new("Frame")
-FPSFrame.Name = "FPSCounter"
-FPSFrame.Size = UDim2.new(0, 100, 0, 60)
-FPSFrame.Position = UDim2.new(1, -110, 0, 10)
-FPSFrame.BackgroundColor3 = Theme.Secondary
-FPSFrame.BorderSizePixel = 0
-FPSFrame.Visible = false
-FPSFrame.Parent = ScreenGui
-
-local FPSCorner = Instance.new("UICorner")
-FPSCorner.CornerRadius = UDim.new(0, 12)
-FPSCorner.Parent = FPSFrame
-
-local FPSGradient = Instance.new("UIGradient")
-FPSGradient.Color = ColorSequence.new({
-   ColorSequenceKeypoint.new(0, Theme.Secondary),
-   ColorSequenceKeypoint.new(1, Theme.Tertiary)
+FPSTab:CreateParagraph({
+   Title = "📊 Current FPS",
+   Content = "FPS will be displayed in the UI after enabling boost"
 })
-FPSGradient.Rotation = 45
-FPSGradient.Parent = FPSFrame
 
-local FPSLabel = Instance.new("TextLabel")
-FPSLabel.Size = UDim2.new(1, 0, 0, 20)
-FPSLabel.Position = UDim2.new(0, 0, 0, 8)
-FPSLabel.BackgroundTransparency = 1
-FPSLabel.Text = "FPS"
-FPSLabel.TextColor3 = Theme.TextDark
-FPSLabel.TextSize = 11
-FPSLabel.Font = Enum.Font.GothamBold
-FPSLabel.Parent = FPSFrame
+FPSTab:CreateSection("Main FPS Boost")
 
-local FPSValue = Instance.new("TextLabel")
-FPSValue.Size = UDim2.new(1, 0, 0, 30)
-FPSValue.Position = UDim2.new(0, 0, 0, 25)
-FPSValue.BackgroundTransparency = 1
-FPSValue.Text = "60"
-FPSValue.TextColor3 = Theme.Success
-FPSValue.TextSize = 26
-FPSValue.Font = Enum.Font.GothamBold
-FPSValue.Parent = FPSFrame
-
--- Update FPS Counter
-task.spawn(function()
-   while task.wait(0.5) do
-      local fps = math.floor(1 / RunService.RenderStepped:Wait())
-      FPSValue.Text = tostring(fps)
+FPSTab:CreateButton({
+   Name = "🚀 ULTRA FPS BOOST (Safe - Collision ON)",
+   Callback = function()
+      Settings.FPSBoost = true
+      Settings.RemoveTextures = true
+      Settings.RemoveParticles = true
+      Settings.LowGraphics = true
+      Settings.RemoveShadows = true
+      Settings.RemoveFog = true
+      Settings.ReduceDrawDistance = true
       
-      if fps >= 60 then
-         FPSValue.TextColor3 = Theme.Success
-      elseif fps >= 30 then
-         FPSValue.TextColor3 = Theme.Warning
-      else
-         FPSValue.TextColor3 = Theme.Danger
-      end
-   end
-end)
-
--- UI Building Functions
-local function CreateSection(name)
-   local Section = Instance.new("Frame")
-   Section.Name = "Section"
-   Section.Size = UDim2.new(1, 0, 0, 30)
-   Section.BackgroundTransparency = 1
-   Section.Parent = ScrollFrame
-   
-   local SectionLabel = Instance.new("TextLabel")
-   SectionLabel.Size = UDim2.new(1, 0, 1, 0)
-   SectionLabel.BackgroundTransparency = 1
-   SectionLabel.Text = name
-   SectionLabel.TextColor3 = Theme.TextDark
-   SectionLabel.TextSize = 13
-   SectionLabel.Font = Enum.Font.GothamBold
-   SectionLabel.TextXAlignment = Enum.TextXAlignment.Left
-   SectionLabel.TextTransparency = 0.3
-   SectionLabel.Parent = Section
-   
-   return Section
-end
-
-local function CreateButton(name, description, callback, color)
-   local Button = Instance.new("TextButton")
-   Button.Name = "Button"
-   Button.Size = UDim2.new(1, 0, 0, description and 65 or 50)
-   Button.BackgroundColor3 = color or Theme.Tertiary
-   Button.BorderSizePixel = 0
-   Button.AutoButtonColor = false
-   Button.Text = ""
-   Button.ClipsDescendants = true
-   Button.Parent = ScrollFrame
-   
-   local ButtonCorner = Instance.new("UICorner")
-   ButtonCorner.CornerRadius = UDim.new(0, 10)
-   ButtonCorner.Parent = Button
-   
-   -- Gradient
-   local Gradient = Instance.new("UIGradient")
-   Gradient.Color = ColorSequence.new({
-      ColorSequenceKeypoint.new(0, color or Theme.Tertiary),
-      ColorSequenceKeypoint.new(1, Color3.fromRGB(
-         math.max(0, (color or Theme.Tertiary).R * 255 - 10),
-         math.max(0, (color or Theme.Tertiary).G * 255 - 10),
-         math.max(0, (color or Theme.Tertiary).B * 255 - 10)
-      ))
-   })
-   Gradient.Rotation = 45
-   Gradient.Parent = Button
-   
-   local Title = Instance.new("TextLabel")
-   Title.Size = UDim2.new(1, -20, 0, description and 25 or 50)
-   Title.Position = UDim2.new(0, 15, 0, description and 10 or 0)
-   Title.BackgroundTransparency = 1
-   Title.Text = name
-   Title.TextColor3 = Theme.Text
-   Title.TextSize = 14
-   Title.Font = Enum.Font.GothamBold
-   Title.TextXAlignment = Enum.TextXAlignment.Left
-   Title.Parent = Button
-   
-   if description then
-      local Desc = Instance.new("TextLabel")
-      Desc.Size = UDim2.new(1, -20, 0, 25)
-      Desc.Position = UDim2.new(0, 15, 0, 35)
-      Desc.BackgroundTransparency = 1
-      Desc.Text = description
-      Desc.TextColor3 = Theme.TextDark
-      Desc.TextSize = 11
-      Desc.Font = Enum.Font.Gotham
-      Desc.TextXAlignment = Enum.TextXAlignment.Left
-      Desc.TextWrapped = true
-      Desc.Parent = Button
-   end
-   
-   -- Hover effect
-   Button.MouseEnter:Connect(function()
-      TweenService:Create(Button, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {
-         BackgroundColor3 = Color3.fromRGB(
-            math.min(255, (color or Theme.Tertiary).R * 255 + 15),
-            math.min(255, (color or Theme.Tertiary).G * 255 + 15),
-            math.min(255, (color or Theme.Tertiary).B * 255 + 15)
-         )
-      }):Play()
-   end)
-   
-   Button.MouseLeave:Connect(function()
-      TweenService:Create(Button, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {
-         BackgroundColor3 = color or Theme.Tertiary
-      }):Play()
-   end)
-   
-   -- Click effect
-   Button.MouseButton1Click:Connect(function()
-      -- Ripple effect
-      local Ripple = Instance.new("Frame")
-      Ripple.Size = UDim2.new(0, 0, 0, 0)
-      Ripple.Position = UDim2.new(0.5, 0, 0.5, 0)
-      Ripple.AnchorPoint = Vector2.new(0.5, 0.5)
-      Ripple.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-      Ripple.BackgroundTransparency = 0.5
-      Ripple.BorderSizePixel = 0
-      Ripple.Parent = Button
+      ApplyAllOptimizationsSafe()
       
-      local RippleCorner = Instance.new("UICorner")
-      RippleCorner.CornerRadius = UDim.new(1, 0)
-      RippleCorner.Parent = Ripple
-      
-      local size = math.max(Button.AbsoluteSize.X, Button.AbsoluteSize.Y) * 2
-      
-      TweenService:Create(Ripple, TweenInfo.new(0.5), {
-         Size = UDim2.new(0, size, 0, size),
-         BackgroundTransparency = 1
-      }):Play()
-      
-      task.delay(0.5, function()
-         Ripple:Destroy()
-      end)
-      
-      if callback then
-         callback()
-      end
-   end)
-   
-   return Button
-end
-
-local function CreateToggle(name, description, default, callback)
-   local Toggle = Instance.new("Frame")
-   Toggle.Name = "Toggle"
-   Toggle.Size = UDim2.new(1, 0, 0, description and 65 or 50)
-   Toggle.BackgroundColor3 = Theme.Tertiary
-   Toggle.BorderSizePixel = 0
-   Toggle.Parent = ScrollFrame
-   
-   local ToggleCorner = Instance.new("UICorner")
-   ToggleCorner.CornerRadius = UDim.new(0, 10)
-   ToggleCorner.Parent = Toggle
-   
-   local Title = Instance.new("TextLabel")
-   Title.Size = UDim2.new(1, -80, 0, description and 25 or 50)
-   Title.Position = UDim2.new(0, 15, 0, description and 10 or 0)
-   Title.BackgroundTransparency = 1
-   Title.Text = name
-   Title.TextColor3 = Theme.Text
-   Title.TextSize = 14
-   Title.Font = Enum.Font.GothamBold
-   Title.TextXAlignment = Enum.TextXAlignment.Left
-   Title.Parent = Toggle
-   
-   if description then
-      local Desc = Instance.new("TextLabel")
-      Desc.Size = UDim2.new(1, -80, 0, 25)
-      Desc.Position = UDim2.new(0, 15, 0, 35)
-      Desc.BackgroundTransparency = 1
-      Desc.Text = description
-      Desc.TextColor3 = Theme.TextDark
-      Desc.TextSize = 11
-      Desc.Font = Enum.Font.Gotham
-      Desc.TextXAlignment = Enum.TextXAlignment.Left
-      Desc.TextWrapped = true
-      Desc.Parent = Toggle
-   end
-   
-   -- Toggle Switch
-   local Switch = Instance.new("TextButton")
-   Switch.Size = UDim2.new(0, 50, 0, 26)
-   Switch.Position = UDim2.new(1, -60, 0.5, -13)
-   Switch.BackgroundColor3 = Theme.Secondary
-   Switch.BorderSizePixel = 0
-   Switch.AutoButtonColor = false
-   Switch.Text = ""
-   Switch.Parent = Toggle
-   
-   local SwitchCorner = Instance.new("UICorner")
-   SwitchCorner.CornerRadius = UDim.new(1, 0)
-   SwitchCorner.Parent = Switch
-   
-   local Circle = Instance.new("Frame")
-   Circle.Size = UDim2.new(0, 20, 0, 20)
-   Circle.Position = UDim2.new(0, 3, 0.5, -10)
-   Circle.BackgroundColor3 = Theme.Text
-   Circle.BorderSizePixel = 0
-   Circle.Parent = Switch
-   
-   local CircleCorner = Instance.new("UICorner")
-   CircleCorner.CornerRadius = UDim.new(1, 0)
-   CircleCorner.Parent = Circle
-   
-   local enabled = default or false
-   
-   local function UpdateToggle(animate)
-      if enabled then
-         local tweenInfo = animate and TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out) or TweenInfo.new(0)
-         TweenService:Create(Switch, tweenInfo, {BackgroundColor3 = Theme.Primary}):Play()
-         TweenService:Create(Circle, tweenInfo, {Position = UDim2.new(1, -23, 0.5, -10)}):Play()
-      else
-         local tweenInfo = animate and TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out) or TweenInfo.new(0)
-         TweenService:Create(Switch, tweenInfo, {BackgroundColor3 = Theme.Secondary}):Play()
-         TweenService:Create(Circle, tweenInfo, {Position = UDim2.new(0, 3, 0.5, -10)}):Play()
-      end
-   end
-   
-   UpdateToggle(false)
-   
-   Switch.MouseButton1Click:Connect(function()
-      enabled = not enabled
-      UpdateToggle(true)
-      if callback then
-         callback(enabled)
-      end
-   end)
-   
-   return Toggle
-end
-
-local function CreateNotification(title, message, duration, notifType)
-   local color = Theme.Primary
-   if notifType == "success" then
-      color = Theme.Success
-   elseif notifType == "warning" then
-      color = Theme.Warning
-   elseif notifType == "error" then
-      color = Theme.Danger
-   end
-   
-   local Notif = Instance.new("Frame")
-   Notif.Size = UDim2.new(0, 320, 0, 80)
-   Notif.Position = UDim2.new(1, 350, 1, -100)
-   Notif.BackgroundColor3 = Theme.Secondary
-   Notif.BorderSizePixel = 0
-   Notif.Parent = ScreenGui
-   
-   local NotifCorner = Instance.new("UICorner")
-   NotifCorner.CornerRadius = UDim.new(0, 12)
-   NotifCorner.Parent = Notif
-   
-   local Accent = Instance.new("Frame")
-   Accent.Size = UDim2.new(0, 4, 1, 0)
-   Accent.BackgroundColor3 = color
-   Accent.BorderSizePixel = 0
-   Accent.Parent = Notif
-   
-   local AccentCorner = Instance.new("UICorner")
-   AccentCorner.CornerRadius = UDim.new(0, 12)
-   AccentCorner.Parent = Accent
-   
-   local NotifTitle = Instance.new("TextLabel")
-   NotifTitle.Size = UDim2.new(1, -20, 0, 25)
-   NotifTitle.Position = UDim2.new(0, 15, 0, 12)
-   NotifTitle.BackgroundTransparency = 1
-   NotifTitle.Text = title
-   NotifTitle.TextColor3 = Theme.Text
-   NotifTitle.TextSize = 14
-   NotifTitle.Font = Enum.Font.GothamBold
-   NotifTitle.TextXAlignment = Enum.TextXAlignment.Left
-   NotifTitle.Parent = Notif
-   
-   local NotifDesc = Instance.new("TextLabel")
-   NotifDesc.Size = UDim2.new(1, -20, 0, 35)
-   NotifDesc.Position = UDim2.new(0, 15, 0, 40)
-   NotifDesc.BackgroundTransparency = 1
-   NotifDesc.Text = message
-   NotifDesc.TextColor3 = Theme.TextDark
-   NotifDesc.TextSize = 12
-   NotifDesc.Font = Enum.Font.Gotham
-   NotifDesc.TextXAlignment = Enum.TextXAlignment.Left
-   NotifDesc.TextWrapped = true
-   NotifDesc.Parent = Notif
-   
-   -- Slide in
-   TweenService:Create(Notif, TweenInfo.new(0.4, Enum.EasingStyle.Back), {
-      Position = UDim2.new(1, -330, 1, -100)
-   }):Play()
-   
-   -- Wait then slide out
-   task.wait(duration or 3)
-   TweenService:Create(Notif, TweenInfo.new(0.3), {
-      Position = UDim2.new(1, 350, 1, -100)
-   }):Play()
-   
-   task.wait(0.3)
-   Notif:Destroy()
-end
-
--- Build UI
-CreateSection("🚀 QUICK BOOST")
-
-CreateButton("⚡ ULTRA FPS BOOST", "Apply all optimizations (collision preserved)", function()
-   CreateNotification("Ultra FPS Boost", "Applying all optimizations! FPS will increase!", 3, "success")
-   ApplyAllOptimizationsSafe()
-end, Theme.Success)
-
-CreateButton("🥔 POTATO MODE", "Maximum FPS for low-end PCs", function()
-   CreateNotification("Potato Mode", "Maximum FPS mode activated!", 3, "warning")
-   ApplyPotatoMode()
-end, Theme.Warning)
-
-CreateButton("⚡ PERFORMANCE MODE", "Balanced settings for mid-range PCs", function()
-   CreateNotification("Performance Mode", "Balanced settings applied!", 3, "success")
-   ApplyPerformanceMode()
-end, Theme.Primary)
-
-CreateSection("📊 MONITORING")
-
-CreateToggle("Show FPS Counter", "Display live FPS counter", false, function(value)
-   FPSFrame.Visible = value
-   Settings.ShowFPS = value
-end)
-
-CreateSection("🎨 GRAPHICS OPTIMIZATION")
-
-CreateToggle("Remove Textures", "Remove all textures for FPS boost", false, function(value)
-   Settings.RemoveTextures = value
-   if value then
-      RemoveTextures()
-      CreateNotification("Textures", "All textures removed!", 2, "success")
-   end
-end)
-
-CreateToggle("Remove Particles", "Remove particle effects", false, function(value)
-   Settings.RemoveParticles = value
-   if value then
-      RemoveParticles()
-      CreateNotification("Particles", "Particle effects removed!", 2, "success")
-   end
-end)
-
-CreateToggle("Remove Shadows", "Disable all shadows", false, function(value)
-   Settings.RemoveShadows = value
-   RemoveShadows(value)
-   if value then
-      CreateNotification("Shadows", "Shadows disabled!", 2, "success")
-   end
-end)
-
-CreateToggle("Remove Fog", "Remove distance fog", false, function(value)
-   Settings.RemoveFog = value
-   RemoveFog(value)
-   if value then
-      CreateNotification("Fog", "Fog removed!", 2, "success")
-   end
-end)
-
-CreateSection("🛡️ ANTI LAG")
-
-CreateButton("🧹 Clear Memory", "Clear memory cache", function()
-   ClearMemoryCache()
-   CreateNotification("Memory", "Memory cache cleared!", 2, "success")
-end, Theme.Primary)
-
-CreateButton("⚙️ Optimize Workspace", "Optimize workspace rendering", function()
-   OptimizeWorkspace()
-   CreateNotification("Workspace", "Workspace optimized!", 2, "success")
-end, Theme.Primary)
-
-CreateButton("🔧 Fix Physics Lag", "Optimize physics calculations", function()
-   FixPhysicsLag()
-   CreateNotification("Physics", "Physics optimized!", 2, "success")
-end, Theme.Primary)
-
-CreateSection("⚙️ ADVANCED")
-
-CreateButton("🗑️ Remove Unused Assets", "Delete unused game assets", function()
-   RemoveUnusedAssets()
-   CreateNotification("Assets", "Unused assets removed!", 2, "warning")
-end, Theme.Warning)
-
-CreateButton("↩️ Restore Defaults", "Reset all settings", function()
-   RestoreDefaults()
-   CreateNotification("Restored", "Settings restored to default!", 2, "error")
-end, Theme.Danger)
-
--- Button Hover Effects
-local buttons = {CloseButton, MinimizeButton}
-for _, button in pairs(buttons) do
-   button.MouseEnter:Connect(function()
-      TweenService:Create(button, TweenInfo.new(0.2), {
-         BackgroundColor3 = Theme.Secondary
-      }):Play()
-   end)
-   
-   button.MouseLeave:Connect(function()
-      TweenService:Create(button, TweenInfo.new(0.2), {
-         BackgroundColor3 = Theme.Tertiary
-      }):Play()
-   end)
-end
-
--- Mini Toggle Button (appears after close)
-local MiniButton = Instance.new("ImageButton")
-MiniButton.Name = "MiniToggle"
-MiniButton.Size = UDim2.new(0, 60, 0, 60)
-MiniButton.Position = UDim2.new(1, -70, 0.5, -30)
-MiniButton.BackgroundColor3 = Theme.Primary
-MiniButton.BorderSizePixel = 0
-MiniButton.Visible = false
-MiniButton.Image = ""
-MiniButton.AutoButtonColor = false
-MiniButton.Parent = ScreenGui
-
-local MiniCorner = Instance.new("UICorner")
-MiniCorner.CornerRadius = UDim.new(0, 30)
-MiniCorner.Parent = MiniButton
-
--- Gradient for mini button
-local MiniGradient = Instance.new("UIGradient")
-MiniGradient.Color = ColorSequence.new({
-   ColorSequenceKeypoint.new(0, Theme.Primary),
-   ColorSequenceKeypoint.new(1, Theme.Accent)
+      Rayfield:Notify({
+         Title = "Ultra FPS Boost (Safe)",
+         Content = "All optimizations applied! Parts remain walkable!",
+         Duration = 5,
+         Image = 4483362458,
+      })
+   end,
 })
-MiniGradient.Rotation = 45
-MiniGradient.Parent = MiniButton
 
--- Icon for mini button
-local MiniIcon = Instance.new("TextLabel")
-MiniIcon.Size = UDim2.new(1, 0, 1, 0)
-MiniIcon.BackgroundTransparency = 1
-MiniIcon.Text = "⚡"
-MiniIcon.TextColor3 = Theme.Text
-MiniIcon.TextSize = 30
-MiniIcon.Font = Enum.Font.GothamBold
-MiniIcon.Parent = MiniButton
-
--- Pulse animation for mini button
-local function PulseMini()
-   while MiniButton.Visible do
-      TweenService:Create(MiniButton, TweenInfo.new(1, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), {
-         Size = UDim2.new(0, 65, 0, 65)
-      }):Play()
-      task.wait(1)
-      TweenService:Create(MiniButton, TweenInfo.new(1, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), {
-         Size = UDim2.new(0, 60, 0, 60)
-      }):Play()
-      task.wait(1)
-   end
-end
-
--- Mini button hover effect
-MiniButton.MouseEnter:Connect(function()
-   TweenService:Create(MiniButton, TweenInfo.new(0.2), {
-      Size = UDim2.new(0, 70, 0, 70),
-      BackgroundColor3 = Theme.Accent
-   }):Play()
-   TweenService:Create(MiniIcon, TweenInfo.new(0.2), {
-      Rotation = 15
-   }):Play()
-end)
-
-MiniButton.MouseLeave:Connect(function()
-   TweenService:Create(MiniButton, TweenInfo.new(0.2), {
-      Size = UDim2.new(0, 60, 0, 60),
-      BackgroundColor3 = Theme.Primary
-   }):Play()
-   TweenService:Create(MiniIcon, TweenInfo.new(0.2), {
-      Rotation = 0
-   }):Play()
-end)
-
--- Mini button click - reopen UI
-MiniButton.MouseButton1Click:Connect(function()
-   -- Hide mini button
-   TweenService:Create(MiniButton, TweenInfo.new(0.3), {
-      Size = UDim2.new(0, 0, 0, 0)
-   }):Play()
-   
-   task.wait(0.3)
-   MiniButton.Visible = false
-   
-   -- Show main UI again
-   MainContainer.Visible = true
-   TweenService:Create(Blur, TweenInfo.new(0.3), {Size = 10}):Play()
-   TweenService:Create(MainContainer, TweenInfo.new(0.5, Enum.EasingStyle.Back), {
-      Size = UDim2.new(0, 450, 0, 550)
-   }):Play()
-   
-   CreateNotification("Welcome Back!", "UI reopened successfully!", 2, "success")
-end)
-
--- Make mini button draggable
-local miniDragging = false
-local miniDragStart
-local miniStartPos
-
-MiniButton.InputBegan:Connect(function(input)
-   if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-      miniDragging = true
-      miniDragStart = input.Position
-      miniStartPos = MiniButton.Position
+FPSTab:CreateButton({
+   Name = "⚡ PERFORMANCE MODE (Balanced)",
+   Callback = function()
+      Settings.RemoveShadows = true
+      Settings.RemoveFog = true
+      Settings.RemoveParticles = true
+      Settings.LowGraphics = true
       
-      input.Changed:Connect(function()
-         if input.UserInputState == Enum.UserInputState.End then
-            miniDragging = false
-         end
-      end)
-   end
-end)
-
-UserInputService.InputChanged:Connect(function(input)
-   if miniDragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-      local delta = input.Position - miniDragStart
-      MiniButton.Position = UDim2.new(
-         miniStartPos.X.Scale,
-         miniStartPos.X.Offset + delta.X,
-         miniStartPos.Y.Scale,
-         miniStartPos.Y.Offset + delta.Y
-      )
-   end
-end)
-
--- Close Button (modified to show mini button)
-local uiClosed = false
-CloseButton.MouseButton1Click:Connect(function()
-   if uiClosed then return end
-   uiClosed = true
-   
-   -- Close main UI
-   TweenService:Create(Blur, TweenInfo.new(0.3), {Size = 0}):Play()
-   TweenService:Create(MainContainer, TweenInfo.new(0.3, Enum.EasingStyle.Back), {
-      Size = UDim2.new(0, 0, 0, 0)
-   }):Play()
-   
-   task.wait(0.3)
-   MainContainer.Visible = false
-   
-   -- Show mini button
-   MiniButton.Visible = true
-   MiniButton.Size = UDim2.new(0, 0, 0, 0)
-   MiniButton.Position = UDim2.new(1, -70, 0.5, -30)
-   
-   TweenService:Create(MiniButton, TweenInfo.new(0.4, Enum.EasingStyle.Back), {
-      Size = UDim2.new(0, 60, 0, 60)
-   }):Play()
-   
-   -- Start pulse animation
-   task.spawn(PulseMini)
-   
-   uiClosed = false
-end)
-
--- Minimize Button
-local minimized = false
-MinimizeButton.MouseButton1Click:Connect(function()
-   minimized = not minimized
-   
-   if minimized then
-      TweenService:Create(MainContainer, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
-         Size = UDim2.new(0, 450, 0, 50)
-      }):Play()
-      ContentContainer.Visible = false
-   else
-      TweenService:Create(MainContainer, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
-         Size = UDim2.new(0, 450, 0, 550)
-      }):Play()
-      ContentContainer.Visible = true
-   end
-end)
-
--- Dragging
-local dragging, dragInput, dragStart, startPos
-Topbar.InputBegan:Connect(function(input)
-   if input.UserInputType == Enum.UserInputType.MouseButton1 then
-      dragging = true
-      dragStart = input.Position
-      startPos = MainContainer.Position
+      ApplyPerformanceMode()
       
-      input.Changed:Connect(function()
-         if input.UserInputState == Enum.UserInputState.End then
-            dragging = false
-         end
-      end)
-   end
-end)
+      Rayfield:Notify({
+         Title = "Performance Mode",
+         Content = "Balanced settings applied!",
+         Duration = 3,
+         Image = 4483362458,
+      })
+   end,
+})
 
-Topbar.InputChanged:Connect(function(input)
-   if input.UserInputType == Enum.UserInputType.MouseMovement then
-      dragInput = input
-   end
-end)
+FPSTab:CreateButton({
+   Name = "🎮 POTATO MODE (Maximum FPS)",
+   Callback = function()
+      ApplyPotatoMode()
+      
+      Rayfield:Notify({
+         Title = "Potato Mode",
+         Content = "Maximum FPS mode! Graphics will be minimal!",
+         Duration = 3,
+         Image = 4483362458,
+      })
+   end,
+})
 
-UserInputService.InputChanged:Connect(function(input)
-   if input == dragInput and dragging then
-      local delta = input.Position - dragStart
-      MainContainer.Position = UDim2.new(
-         startPos.X.Scale,
-         startPos.X.Offset + delta.X,
-         startPos.X.Scale,
-         startPos.Y.Offset + delta.Y
-      )
-   end
-end)
+FPSTab:CreateSection("FPS Settings")
 
--- Entrance Animation
-TweenService:Create(Blur, TweenInfo.new(0.3), {Size = 10}):Play()
-TweenService:Create(MainContainer, TweenInfo.new(0.5, Enum.EasingStyle.Back), {
-   Size = UDim2.new(0, 450, 0, 550)
-}):Play()
+FPSTab:CreateToggle({
+   Name = "Show FPS Counter",
+   CurrentValue = false,
+   Flag = "ShowFPS",
+   Callback = function(Value)
+      ShowFPSCounter(Value)
+   end,
+})
 
-task.wait(0.6)
-CreateNotification("FPS Optimizer", "Welcome! Click Ultra FPS Boost to start!", 4, "success")
+FPSTab:CreateSlider({
+   Name = "FPS Cap (0 = Unlimited)",
+   Range = {0, 240},
+   Increment = 10,
+   Suffix = " FPS",
+   CurrentValue = 0,
+   Flag = "FPSCap",
+   Callback = function(Value)
+      Settings.FPSCap = Value
+      if Value > 0 then
+         setfpscap(Value)
+      else
+         setfpscap(999)
+      end
+   end,
+})
 
-print("✅ Custom UI Loaded!")
-print("🎨 Modern design with smooth animations!")
+-- ============================================
+-- TAB: GRAPHICS OPTIMIZATION
+-- ============================================
+local GraphicsTab = Window:CreateTab("🎨 Graphics", 4483362458)
 
--- OPTIMIZATION FUNCTIONS
-function ApplyAllOptimizationsSafe()
-   print("\n⚡ Applying optimizations (Safe Mode)...")
+GraphicsTab:CreateSection("Texture & Visual Optimization")
+
+GraphicsTab:CreateToggle({
+   Name = "Remove All Textures",
+   CurrentValue = false,
+   Flag = "RemoveTextures",
+   Callback = function(Value)
+      Settings.RemoveTextures = Value
+      if Value then
+         RemoveTextures()
+      end
+   end,
+})
+
+GraphicsTab:CreateToggle({
+   Name = "Remove Particles & Effects",
+   CurrentValue = false,
+   Flag = "RemoveParticles",
+   Callback = function(Value)
+      Settings.RemoveParticles = Value
+      if Value then
+         RemoveParticles()
+      end
+   end,
+})
+
+GraphicsTab:CreateToggle({
+   Name = "Remove Decals & Stickers",
+   CurrentValue = false,
+   Flag = "RemoveDecals",
+   Callback = function(Value)
+      Settings.RemoveDecals = Value
+      if Value then
+         RemoveDecals()
+      end
+   end,
+})
+
+GraphicsTab:CreateToggle({
+   Name = "Simplify Meshes",
+   CurrentValue = false,
+   Flag = "SimplifyMeshes",
+   Callback = function(Value)
+      Settings.RemoveMeshes = Value
+      if Value then
+         SimplifyMeshes()
+      end
+   end,
+})
+
+GraphicsTab:CreateSection("Lighting Optimization")
+
+GraphicsTab:CreateToggle({
+   Name = "Remove Shadows",
+   CurrentValue = false,
+   Flag = "RemoveShadows",
+   Callback = function(Value)
+      Settings.RemoveShadows = Value
+      RemoveShadows(Value)
+   end,
+})
+
+GraphicsTab:CreateToggle({
+   Name = "Remove Fog",
+   CurrentValue = false,
+   Flag = "RemoveFog",
+   Callback = function(Value)
+      Settings.RemoveFog = Value
+      RemoveFog(Value)
+   end,
+})
+
+GraphicsTab:CreateToggle({
+   Name = "Disable Blur & Color Effects",
+   CurrentValue = false,
+   Flag = "DisableEffects",
+   Callback = function(Value)
+      DisableLightingEffects(Value)
+   end,
+})
+
+GraphicsTab:CreateSection("Render Distance")
+
+GraphicsTab:CreateToggle({
+   Name = "Reduce Draw Distance",
+   CurrentValue = false,
+   Flag = "ReduceDrawDistance",
+   Callback = function(Value)
+      Settings.ReduceDrawDistance = Value
+      ReduceDrawDistance(Value)
+   end,
+})
+
+GraphicsTab:CreateButton({
+   Name = "Hide Distant Objects",
+   Callback = function()
+      HideDistantObjects()
+   end,
+})
+
+-- ============================================
+-- TAB: ANTI LAG
+-- ============================================
+local AntiLagTab = Window:CreateTab("🛡️ Anti Lag", 4483362458)
+
+AntiLagTab:CreateSection("Memory Optimization")
+
+AntiLagTab:CreateButton({
+   Name = "Clear Memory Cache",
+   Callback = function()
+      ClearMemoryCache()
+   end,
+})
+
+AntiLagTab:CreateButton({
+   Name = "Remove Unused Assets",
+   Callback = function()
+      RemoveUnusedAssets()
+   end,
+})
+
+AntiLagTab:CreateButton({
+   Name = "Optimize Workspace",
+   Callback = function()
+      OptimizeWorkspace()
+   end,
+})
+
+AntiLagTab:CreateSection("Animation & Physics")
+
+AntiLagTab:CreateToggle({
+   Name = "Disable Animations",
+   CurrentValue = false,
+   Flag = "DisableAnimations",
+   Callback = function(Value)
+      Settings.DisableAnimations = Value
+      DisableAnimations(Value)
+   end,
+})
+
+AntiLagTab:CreateToggle({
+   Name = "Reduce Physics Quality",
+   CurrentValue = false,
+   Flag = "ReducePhysics",
+   Callback = function(Value)
+      ReducePhysics(Value)
+   end,
+})
+
+AntiLagTab:CreateButton({
+   Name = "Fix Physics Lag",
+   Callback = function()
+      FixPhysicsLag()
+   end,
+})
+
+AntiLagTab:CreateSection("Network Optimization")
+
+AntiLagTab:CreateButton({
+   Name = "Optimize Network Traffic",
+   Callback = function()
+      OptimizeNetwork()
+   end,
+})
+
+AntiLagTab:CreateToggle({
+   Name = "Reduce Network Data",
+   CurrentValue = false,
+   Flag = "ReduceNetwork",
+   Callback = function(Value)
+      ReduceNetworkData(Value)
+   end,
+})
+
+-- ============================================
+-- TAB: ADVANCED
+-- ============================================
+local AdvancedTab = Window:CreateTab("⚙️ Advanced", 4483362458)
+
+AdvancedTab:CreateSection("Advanced Optimizations")
+
+AdvancedTab:CreateToggle({
+   Name = "Remove Terrain Textures",
+   CurrentValue = false,
+   Flag = "RemoveTerrain",
+   Callback = function(Value)
+      Settings.RemoveTerrain = Value
+      RemoveTerrainTextures(Value)
+   end,
+})
+
+AdvancedTab:CreateToggle({
+   Name = "Disable Post-Processing",
+   CurrentValue = false,
+   Flag = "DisablePostProcessing",
+   Callback = function(Value)
+      DisablePostProcessing(Value)
+   end,
+})
+
+AdvancedTab:CreateButton({
+   Name = "Delete All Unnecessary Parts",
+   Callback = function()
+      DeleteUnnecessaryParts()
+   end,
+})
+
+AdvancedTab:CreateButton({
+   Name = "Optimize All Characters",
+   Callback = function()
+      OptimizeAllCharacters()
+   end,
+})
+
+AdvancedTab:CreateSection("Extreme Optimizations")
+
+AdvancedTab:CreateButton({
+   Name = "⚠️ DESTROY ALL VISUALS (MAX FPS)",
+   Callback = function()
+      DestroyAllVisuals()
+      
+      Rayfield:Notify({
+         Title = "Maximum Optimization",
+         Content = "All visuals destroyed! Max FPS mode!",
+         Duration = 5,
+         Image = 4483362458,
+      })
+   end,
+})
+
+AdvancedTab:CreateButton({
+   Name = "Restore Default Settings",
+   Callback = function()
+      RestoreDefaults()
+   end,
+})
+
+-- ============================================
+-- TAB: INFO
+-- ============================================
+local InfoTab = Window:CreateTab("ℹ️ Info", 4483362458)
+
+InfoTab:CreateParagraph({
+   Title = "📊 System Information",
+   Content = "Monitor your game performance"
+})
+
+InfoTab:CreateButton({
+   Name = "Show Performance Stats",
+   Callback = function()
+      ShowPerformanceStats()
+   end,
+})
+
+InfoTab:CreateButton({
+   Name = "Show Memory Usage",
+   Callback = function()
+      ShowMemoryUsage()
+   end,
+})
+
+InfoTab:CreateSection("Recommendations")
+
+InfoTab:CreateParagraph({
+   Title = "🎮 Low-End PC",
+   Content = "Recommended: Ultra FPS Boost + Potato Mode\nRemove all textures and particles"
+})
+
+InfoTab:CreateParagraph({
+   Title = "💻 Mid-Range PC",
+   Content = "Recommended: Performance Mode\nRemove shadows and fog only"
+})
+
+InfoTab:CreateParagraph({
+   Title = "🖥️ High-End PC",
+   Content = "Recommended: Graphics optimizations only\nKeep visuals, remove shadows"
+})
+
+-- ============================================
+-- FUNCTIONS
+-- ============================================
+
+-- Main Optimization Functions
+function ApplyAllOptimizations()
+   print("\n⚡ Applying ALL optimizations...")
+   
    RemoveTextures()
    RemoveParticles()
+   RemoveDecals()
    RemoveShadows(true)
    RemoveFog(true)
+   DisableLightingEffects(true)
+   ReduceDrawDistance(true)
+   DisableAnimations(true)
+   ReducePhysics(true)
+   RemoveTerrainTextures(true)
+   DisablePostProcessing(true)
    OptimizeWorkspace()
-   print("✅ Optimizations complete!")
+   
+   print("✅ All optimizations applied!")
 end
 
-function ApplyPotatoMode()
-   print("\n🥔 Potato Mode activated...")
-   for _, obj in pairs(Workspace:GetDescendants()) do
-      pcall(function()
-         if obj:IsA("Texture") or obj:IsA("Decal") then obj:Destroy() end
-         if obj:IsA("ParticleEmitter") or obj:IsA("Trail") then obj:Destroy() end
-         if obj:IsA("MeshPart") then obj.TextureID = "" end
-      end)
-   end
-   Lighting.GlobalShadows = false
-   Lighting.FogEnd = 100000
-   settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
-   print("✅ Potato mode complete!")
+function ApplyAllOptimizationsSafe()
+   print("\n⚡ Applying ALL optimizations (SAFE MODE - Collision preserved)...")
+   
+   RemoveTextures()
+   RemoveParticles()
+   RemoveDecals()
+   RemoveShadows(true)
+   RemoveFog(true)
+   DisableLightingEffects(true)
+   -- ReduceDrawDistance will keep CanCollide ON
+   ReduceDrawDistance(true)
+   DisableAnimations(true)
+   -- ReducePhysics modified to not affect walkable surfaces
+   ReducePhysicsSafe(true)
+   RemoveTerrainTextures(true)
+   DisablePostProcessing(true)
+   OptimizeWorkspace()
+   
+   print("✅ All optimizations applied (collision preserved)!")
 end
 
 function ApplyPerformanceMode()
-   print("\n⚡ Performance Mode...")
+   print("\n⚡ Applying Performance Mode...")
+   
    RemoveShadows(true)
    RemoveFog(true)
    RemoveParticles()
+   DisableLightingEffects(true)
+   
    Lighting.Brightness = 2
-   print("✅ Performance mode complete!")
+   Lighting.GlobalShadows = false
+   
+   print("✅ Performance mode applied!")
 end
 
-function RemoveTextures()
-   local count = 0
+function ApplyPotatoMode()
+   print("\n🥔 Applying POTATO MODE...")
+   
+   -- Remove everything
    for _, obj in pairs(Workspace:GetDescendants()) do
       pcall(function()
-         if obj:IsA("Texture") then obj:Destroy() count = count + 1
-         elseif obj:IsA("MeshPart") then obj.TextureID = "" count = count + 1
-         end
+         if obj:IsA("Texture") then obj:Destroy() end
+         if obj:IsA("Decal") then obj:Destroy() end
+         if obj:IsA("ParticleEmitter") then obj:Destroy() end
+         if obj:IsA("Trail") then obj:Destroy() end
+         if obj:IsA("Smoke") then obj:Destroy() end
+         if obj:IsA("Fire") then obj:Destroy() end
+         if obj:IsA("Sparkles") then obj:Destroy() end
+         if obj:IsA("MeshPart") then obj.TextureID = "" end
+         if obj:IsA("Part") then obj.Material = Enum.Material.SmoothPlastic end
       end)
    end
-   print("✅ Removed " .. count .. " textures")
-end
-
-function RemoveParticles()
-   local count = 0
-   for _, obj in pairs(Workspace:GetDescendants()) do
-      pcall(function()
-         if obj:IsA("ParticleEmitter") or obj:IsA("Trail") or obj:IsA("Smoke") or obj:IsA("Fire") then
-            obj:Destroy()
-            count = count + 1
-         end
-      end)
-   end
-   print("✅ Removed " .. count .. " particles")
-end
-
-function RemoveShadows(enabled)
-   if enabled then
-      Lighting.GlobalShadows = false
-      for _, obj in pairs(Workspace:GetDescendants()) do
-         pcall(function()
-            if obj:IsA("BasePart") then obj.CastShadow = false end
-         end)
+   
+   -- Lighting to minimum
+   Lighting.GlobalShadows = false
+   Lighting.FogEnd = 100000
+   Lighting.Brightness = 0
+   
+   -- Remove all lighting effects
+   for _, effect in pairs(Lighting:GetChildren()) do
+      if effect:IsA("PostEffect") then
+         effect.Enabled = false
       end
-      print("✅ Shadows removed")
-   else
-      Lighting.GlobalShadows = true
    end
+   
+   -- Set graphics quality to minimum
+   settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
+   
+   print("✅ POTATO MODE activated!")
 end
 
-function RemoveFog(enabled)
-   Lighting.FogEnd = enabled and 100000 or 500
-   print("✅ Fog " .. (enabled and "removed" or "restored"))
-end
-
-function OptimizeWorkspace()
+-- Texture Removal
+function RemoveTextures()
+   print("\n🎨 Removing textures...")
+   local removed = 0
+   
    for _, obj in pairs(Workspace:GetDescendants()) do
       pcall(function()
-         if obj:IsA("BasePart") and obj.Transparency >= 0.98 then
+         if obj:IsA("Texture") then
+            obj:Destroy()
+            removed = removed + 1
+         elseif obj:IsA("MeshPart") then
+            obj.TextureID = ""
+            removed = removed + 1
+         elseif obj:IsA("Part") then
             obj.Material = Enum.Material.SmoothPlastic
          end
       end)
    end
-   print("✅ Workspace optimized")
+   
+   print("✅ Removed " .. removed .. " textures")
+   
+   Rayfield:Notify({
+      Title = "Textures Removed",
+      Content = "Removed " .. removed .. " textures!",
+      Duration = 3,
+      Image = 4483362458,
+   })
 end
 
+-- Particle Removal
+function RemoveParticles()
+   print("\n✨ Removing particles...")
+   local removed = 0
+   
+   for _, obj in pairs(Workspace:GetDescendants()) do
+      pcall(function()
+         if obj:IsA("ParticleEmitter") or obj:IsA("Trail") or 
+            obj:IsA("Smoke") or obj:IsA("Fire") or obj:IsA("Sparkles") then
+            obj:Destroy()
+            removed = removed + 1
+         end
+      end)
+   end
+   
+   print("✅ Removed " .. removed .. " particle effects")
+   
+   Rayfield:Notify({
+      Title = "Particles Removed",
+      Content = "Removed " .. removed .. " effects!",
+      Duration = 3,
+      Image = 4483362458,
+   })
+end
+
+-- Decal Removal
+function RemoveDecals()
+   print("\n🖼️ Removing decals...")
+   local removed = 0
+   
+   for _, obj in pairs(Workspace:GetDescendants()) do
+      pcall(function()
+         if obj:IsA("Decal") or obj:IsA("SurfaceGui") then
+            obj:Destroy()
+            removed = removed + 1
+         end
+      end)
+   end
+   
+   print("✅ Removed " .. removed .. " decals")
+end
+
+-- Mesh Simplification
+function SimplifyMeshes()
+   print("\n🔷 Simplifying meshes...")
+   
+   for _, obj in pairs(Workspace:GetDescendants()) do
+      pcall(function()
+         if obj:IsA("SpecialMesh") then
+            obj:Destroy()
+         elseif obj:IsA("MeshPart") then
+            obj.RenderFidelity = Enum.RenderFidelity.Performance
+         end
+      end)
+   end
+   
+   print("✅ Meshes simplified")
+end
+
+-- Shadow Removal
+function RemoveShadows(enabled)
+   if enabled then
+      Lighting.GlobalShadows = false
+      Lighting.Brightness = 2
+      
+      for _, obj in pairs(Workspace:GetDescendants()) do
+         pcall(function()
+            if obj:IsA("Part") or obj:IsA("MeshPart") then
+               obj.CastShadow = false
+            end
+         end)
+      end
+      
+      print("✅ Shadows removed")
+   else
+      Lighting.GlobalShadows = true
+      Lighting.Brightness = 1
+   end
+end
+
+-- Fog Removal
+function RemoveFog(enabled)
+   if enabled then
+      Lighting.FogEnd = 100000
+      Lighting.FogStart = 0
+      print("✅ Fog removed")
+   else
+      Lighting.FogEnd = 500
+   end
+end
+
+-- Lighting Effects
+function DisableLightingEffects(enabled)
+   if enabled then
+      for _, effect in pairs(Lighting:GetChildren()) do
+         pcall(function()
+            if effect:IsA("BloomEffect") or effect:IsA("BlurEffect") or 
+               effect:IsA("ColorCorrectionEffect") or effect:IsA("SunRaysEffect") or
+               effect:IsA("DepthOfFieldEffect") then
+               effect.Enabled = false
+            end
+         end)
+      end
+      print("✅ Lighting effects disabled")
+   end
+end
+
+-- Draw Distance
+function ReduceDrawDistance(enabled)
+   if enabled then
+      for _, obj in pairs(Workspace:GetDescendants()) do
+         pcall(function()
+            if obj:IsA("BasePart") then
+               local distance = (player.Character.HumanoidRootPart.Position - obj.Position).Magnitude
+               if distance > 500 then
+                  obj.Transparency = 1
+                  -- KEEP CanCollide = true so parts remain walkable!
+               end
+            end
+         end)
+      end
+      print("✅ Draw distance reduced (CanCollide kept ON)")
+   end
+end
+
+function HideDistantObjects()
+   local hidden = 0
+   local character = player.Character
+   
+   if character and character:FindFirstChild("HumanoidRootPart") then
+      local hrp = character.HumanoidRootPart
+      
+      for _, obj in pairs(Workspace:GetDescendants()) do
+         pcall(function()
+            if obj:IsA("BasePart") then
+               local distance = (hrp.Position - obj.Position).Magnitude
+               if distance > 1000 then
+                  -- Make invisible but keep collision
+                  obj.Transparency = 1
+                  hidden = hidden + 1
+               end
+            end
+         end)
+      end
+   end
+   
+   Rayfield:Notify({
+      Title = "Objects Hidden",
+      Content = "Hidden " .. hidden .. " distant objects (collision kept)!",
+      Duration = 3,
+      Image = 4483362458,
+   })
+end
+
+-- Memory Optimization
 function ClearMemoryCache()
+   print("\n🧹 Clearing memory cache...")
+   
+   -- Force garbage collection
    for i = 1, 10 do
       wait()
-      collectgarbage("collect")
+      pcall(function()
+         game:GetService("ContentProvider"):PreloadAsync({})
+      end)
    end
-   print("✅ Memory cleared")
+   
+   collectgarbage("collect")
+   
+   print("✅ Memory cache cleared")
+   
+   Rayfield:Notify({
+      Title = "Memory Cleared",
+      Content = "Memory cache cleared!",
+      Duration = 3,
+      Image = 4483362458,
+   })
 end
 
 function RemoveUnusedAssets()
-   local count = 0
+   print("\n🗑️ Removing unused assets...")
+   local removed = 0
+   
    for _, obj in pairs(Workspace:GetDescendants()) do
       pcall(function()
          if obj:IsA("Sound") and not obj.IsPlaying then
             obj:Destroy()
-            count = count + 1
+            removed = removed + 1
          end
       end)
    end
-   print("✅ Removed " .. count .. " unused assets")
+   
+   print("✅ Removed " .. removed .. " unused assets")
+end
+
+function OptimizeWorkspace()
+   print("\n⚙️ Optimizing workspace...")
+   
+   -- Optimize without disabling collisions
+   for _, obj in pairs(Workspace:GetDescendants()) do
+      pcall(function()
+         if obj:IsA("BasePart") then
+            -- Only optimize rendering, keep physics intact
+            if obj.Transparency >= 0.98 then
+               -- Keep CanCollide true for walkable surfaces
+               -- Just optimize material
+               if obj.Material ~= Enum.Material.Air then
+                  obj.Material = Enum.Material.SmoothPlastic
+               end
+            end
+         end
+      end)
+   end
+   
+   print("✅ Workspace optimized (collision preserved)")
+   
+   Rayfield:Notify({
+      Title = "Workspace Optimized",
+      Content = "Workspace optimized (floors still walkable)!",
+      Duration = 3,
+      Image = 4483362458,
+   })
+end
+
+-- Animation Control
+function DisableAnimations(enabled)
+   if enabled then
+      for _, player in pairs(Players:GetPlayers()) do
+         pcall(function()
+            if player.Character then
+               for _, track in pairs(player.Character.Humanoid:GetPlayingAnimationTracks()) do
+                  track:Stop()
+               end
+            end
+         end)
+      end
+      print("✅ Animations disabled")
+   end
+end
+
+-- Physics Optimization
+function ReducePhysics(enabled)
+   if enabled then
+      settings().Physics.AllowSleep = true
+      settings().Physics.PhysicsEnvironmentalThrottle = Enum.EnviromentalPhysicsThrottle.DefaultAuto
+      
+      for _, obj in pairs(Workspace:GetDescendants()) do
+         pcall(function()
+            if obj:IsA("BasePart") then
+               obj.Massless = true
+            end
+         end)
+      end
+      
+      print("✅ Physics quality reduced")
+   end
+end
+
+function ReducePhysicsSafe(enabled)
+   if enabled then
+      settings().Physics.AllowSleep = true
+      settings().Physics.PhysicsEnvironmentalThrottle = Enum.EnviromentalPhysicsThrottle.DefaultAuto
+      
+      for _, obj in pairs(Workspace:GetDescendants()) do
+         pcall(function()
+            if obj:IsA("BasePart") then
+               -- Only set massless, don't touch CanCollide
+               obj.Massless = true
+               -- Keep CanCollide as is (usually true for floors/walls)
+            end
+         end)
+      end
+      
+      print("✅ Physics quality reduced (collision preserved)")
+   end
 end
 
 function FixPhysicsLag()
    for _, obj in pairs(Workspace:GetDescendants()) do
       pcall(function()
-         if obj:IsA("BasePart") then obj.Massless = true end
+         if obj:IsA("BasePart") then
+            obj.Massless = true
+            obj.CanCollide = true
+         end
       end)
    end
-   print("✅ Physics optimized")
+   
+   Rayfield:Notify({
+      Title = "Physics Fixed",
+      Content = "Physics lag should be reduced!",
+      Duration = 3,
+      Image = 4483362458,
+   })
+end
+
+-- Network Optimization
+function OptimizeNetwork()
+   settings().Network.IncomingReplicationLag = 0
+   
+   Rayfield:Notify({
+      Title = "Network Optimized",
+      Content = "Network traffic optimized!",
+      Duration = 3,
+      Image = 4483362458,
+   })
+end
+
+function ReduceNetworkData(enabled)
+   if enabled then
+      settings().Network.IncomingReplicationLag = 0
+      settings().Network.FreeMemoryMBytes = 1
+   end
+end
+
+-- Terrain Optimization
+function RemoveTerrainTextures(enabled)
+   if enabled then
+      pcall(function()
+         Workspace.Terrain.Decoration = false
+         Workspace.Terrain.WaterWaveSize = 0
+         Workspace.Terrain.WaterWaveSpeed = 0
+         Workspace.Terrain.WaterReflectance = 0
+         Workspace.Terrain.WaterTransparency = 0
+      end)
+      print("✅ Terrain textures removed")
+   end
+end
+
+-- Post Processing
+function DisablePostProcessing(enabled)
+   if enabled then
+      for _, effect in pairs(Lighting:GetChildren()) do
+         pcall(function()
+            if effect:IsA("PostEffect") then
+               effect.Enabled = false
+            end
+         end)
+      end
+      print("✅ Post-processing disabled")
+   end
+end
+
+-- Extreme Optimizations
+function DeleteUnnecessaryParts()
+   local deleted = 0
+   
+   for _, obj in pairs(Workspace:GetDescendants()) do
+      pcall(function()
+         if obj:IsA("BasePart") then
+            if obj.Transparency >= 0.98 or obj.Size.X < 0.5 then
+               obj:Destroy()
+               deleted = deleted + 1
+            end
+         end
+      end)
+   end
+   
+   Rayfield:Notify({
+      Title = "Parts Deleted",
+      Content = "Deleted " .. deleted .. " unnecessary parts!",
+      Duration = 3,
+      Image = 4483362458,
+   })
+end
+
+function OptimizeAllCharacters()
+   for _, player in pairs(Players:GetPlayers()) do
+      pcall(function()
+         if player.Character then
+            for _, obj in pairs(player.Character:GetDescendants()) do
+               if obj:IsA("Accessory") then
+                  obj:Destroy()
+               elseif obj:IsA("Shirt") or obj:IsA("Pants") then
+                  obj:Destroy()
+               end
+            end
+         end
+      end)
+   end
+   
+   Rayfield:Notify({
+      Title = "Characters Optimized",
+      Content = "All characters optimized!",
+      Duration = 3,
+      Image = 4483362458,
+   })
+end
+
+function DestroyAllVisuals()
+   ApplyPotatoMode()
+   RemoveTextures()
+   RemoveParticles()
+   RemoveDecals()
+   SimplifyMeshes()
+   DeleteUnnecessaryParts()
 end
 
 function RestoreDefaults()
    Lighting.GlobalShadows = true
    Lighting.FogEnd = 500
    Lighting.Brightness = 1
+   
+   for _, effect in pairs(Lighting:GetChildren()) do
+      pcall(function()
+         if effect:IsA("PostEffect") then
+            effect.Enabled = true
+         end
+      end)
+   end
+   
    settings().Rendering.QualityLevel = Enum.QualityLevel.Automatic
-   print("✅ Defaults restored")
+   
+   Rayfield:Notify({
+      Title = "Defaults Restored",
+      Content = "Graphics restored to default!",
+      Duration = 3,
+      Image = 4483362458,
+   })
 end
 
-print("\n" .. string.rep("=", 70))
-print("FPS OPTIMIZER READY!")
-print("UI: Modern Discord-style design")
-print("Animations: Smooth tweens and effects")
+-- Performance Stats
+function ShowPerformanceStats()
+   local stats = game:GetService("Stats")
+   
+   print("\n" .. string.rep("=", 70))
+   print("PERFORMANCE STATISTICS")
+   print(string.rep("=", 70))
+   print("FPS: " .. math.floor(1 / RunService.RenderStepped:Wait()))
+   print("Memory: " .. math.floor(stats:GetTotalMemoryUsageMb()) .. " MB")
+   print("Ping: " .. math.floor(player:GetNetworkPing()) .. " ms")
+   print(string.rep("=", 70) .. "\n")
+   
+   Rayfield:Notify({
+      Title = "Performance Stats",
+      Content = "Check console (F9) for details!",
+      Duration = 3,
+      Image = 4483362458,
+   })
+end
+
+function ShowMemoryUsage()
+   local stats = game:GetService("Stats")
+   local memory = math.floor(stats:GetTotalMemoryUsageMb())
+   
+   print("\n📊 Memory Usage: " .. memory .. " MB")
+   
+   Rayfield:Notify({
+      Title = "Memory Usage",
+      Content = memory .. " MB currently used",
+      Duration = 3,
+      Image = 4483362458,
+   })
+end
+
+-- FPS Counter
+function ShowFPSCounter(enabled)
+   if enabled then
+      local ScreenGui = Instance.new("ScreenGui")
+      ScreenGui.Name = "FPSCounter"
+      ScreenGui.Parent = player.PlayerGui
+      ScreenGui.ResetOnSpawn = false
+      
+      local Frame = Instance.new("Frame")
+      Frame.Size = UDim2.new(0, 200, 0, 60)
+      Frame.Position = UDim2.new(1, -210, 0, 10)
+      Frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+      Frame.BorderSizePixel = 0
+      Frame.Parent = ScreenGui
+      
+      local UICorner = Instance.new("UICorner")
+      UICorner.CornerRadius = UDim.new(0, 10)
+      UICorner.Parent = Frame
+      
+      local FPSLabel = Instance.new("TextLabel")
+      FPSLabel.Size = UDim2.new(1, 0, 1, 0)
+      FPSLabel.BackgroundTransparency = 1
+      FPSLabel.Text = "FPS: Calculating..."
+      FPSLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
+      FPSLabel.TextSize = 20
+      FPSLabel.Font = Enum.Font.GothamBold
+      FPSLabel.Parent = Frame
+      
+      -- FPS Update Loop
+      task.spawn(function()
+         while FPSLabel.Parent do
+            local fps = math.floor(1 / RunService.RenderStepped:Wait())
+            FPSLabel.Text = "FPS: " .. fps
+            
+            -- Color based on FPS
+            if fps >= 60 then
+               FPSLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
+            elseif fps >= 30 then
+               FPSLabel.TextColor3 = Color3.fromRGB(255, 255, 0)
+            else
+               FPSLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
+            end
+            
+            wait(0.5)
+         end
+      end)
+   else
+      if player.PlayerGui:FindFirstChild("FPSCounter") then
+         player.PlayerGui.FPSCounter:Destroy()
+      end
+   end
+end
+
+-- ============================================
+-- AUTO OPTIMIZATION LOOP
+-- ============================================
+
+-- Continuously remove new particles/effects
+task.spawn(function()
+   while wait(5) do
+      if Settings.RemoveParticles then
+         for _, obj in pairs(Workspace:GetDescendants()) do
+            pcall(function()
+               if obj:IsA("ParticleEmitter") or obj:IsA("Trail") then
+                  obj:Destroy()
+               end
+            end)
+         end
+      end
+   end
+end)
+
+-- Load Complete
+Rayfield:Notify({
+   Title = "FPS Optimizer Loaded!",
+   Content = "Click 'Ultra FPS Boost' for maximum performance!",
+   Duration = 5,
+   Image = 4483362458,
+})
+
+print("\n✅ FPS OPTIMIZER & ANTI LAG LOADED!")
+print("🚀 Click 'Ultra FPS Boost' for best results!")
+print("🥔 Use 'Potato Mode' for maximum FPS on low-end PCs!")
 print(string.rep("=", 70) .. "\n")
