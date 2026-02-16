@@ -1,736 +1,1049 @@
--- ESCAPE TSUNAMI FOR BRAINROT - WORKING VERSION
--- Fokus pada fitur yang benar-benar bekerja
--- Tested and verified
+-- ROBLOX FPS OPTIMIZER & ANTI LAG - UNIVERSAL
+-- Works on ALL Roblox games
+-- Boost FPS, Reduce Lag, Optimize Performance
 
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
-   Name = "Escape Tsunami - Brainrot",
-   LoadingTitle = "Escape Tsunami for Brainrot",
-   LoadingSubtitle = "Loading working features...",
-   ConfigurationSaving = {Enabled = false},
-   Discord = {Enabled = false},
+   Name = "FPS Optimizer & Anti Lag",
+   LoadingTitle = "FPS Booster",
+   LoadingSubtitle = "Loading optimization tools...",
+   ConfigurationSaving = {
+      Enabled = true,
+      FolderName = nil,
+      FileName = "FPSOptimizer"
+   },
+   Discord = {
+      Enabled = false,
+   },
    KeySystem = false,
 })
 
 -- Services
+local RunService = game:GetService("RunService")
+local Lighting = game:GetService("Lighting")
 local Players = game:GetService("Players")
 local Workspace = game:GetService("Workspace")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
 
 -- Player
 local player = Players.LocalPlayer
 
--- Variables
-_G.AutoCollect = false
-_G.Speed = 16
-_G.JumpPower = 50
-_G.AntiTsunami = false
-_G.InfiniteStamina = false
+-- FPS Counter
+local FPSCounter = 0
+local LastUpdate = tick()
 
-print("\n" .. string.rep("=", 70))
-print("ESCAPE TSUNAMI FOR BRAINROT - WORKING VERSION")
-print("Analyzing game structure...")
-print(string.rep("=", 70))
-
--- Detect game structure
-local GameInfo = {
-   BrainrotItems = {},
-   Remotes = {},
-   PlayerData = nil,
+-- Settings
+local Settings = {
+   FPSBoost = false,
+   RemoveTextures = false,
+   RemoveParticles = false,
+   RemoveTerrain = false,
+   LowGraphics = false,
+   DisableAnimations = false,
+   ReduceDrawDistance = false,
+   RemoveShadows = true,
+   RemoveFog = true,
+   RemoveDecals = false,
+   RemoveMeshes = false,
+   FPSCap = 0,
 }
 
--- Scan for brainrot items
-task.spawn(function()
-   print("\n[1/3] Scanning for brainrot items...")
-   for _, obj in pairs(Workspace:GetDescendants()) do
-      if obj:IsA("BasePart") or obj:IsA("Model") then
-         local name = obj.Name:lower()
-         if name:find("brain") or name:find("item") or name:find("collect") then
-            table.insert(GameInfo.BrainrotItems, obj)
-         end
-      end
-   end
-   print("   ✓ Found " .. #GameInfo.BrainrotItems .. " collectible items")
-end)
-
--- Scan for remotes
-task.spawn(function()
-   print("\n[2/3] Scanning for game remotes...")
-   for _, obj in pairs(ReplicatedStorage:GetDescendants()) do
-      if obj:IsA("RemoteEvent") or obj:IsA("RemoteFunction") then
-         table.insert(GameInfo.Remotes, obj)
-      end
-   end
-   print("   ✓ Found " .. #GameInfo.Remotes .. " remotes")
-end)
-
--- Find player data
-task.spawn(function()
-   print("\n[3/3] Looking for player data...")
-   for _, obj in pairs(player:GetChildren()) do
-      if obj:IsA("Folder") or obj:IsA("Configuration") then
-         GameInfo.PlayerData = obj
-         print("   ✓ Found player data: " .. obj.Name)
-         break
-      end
-   end
-end)
-
-wait(2)
 print("\n" .. string.rep("=", 70))
-print("Analysis complete!")
+print("ROBLOX FPS OPTIMIZER & ANTI LAG")
+print("Universal script for all games")
 print(string.rep("=", 70) .. "\n")
 
 -- ============================================
--- TAB: MAIN (WORKING FEATURES)
+-- TAB: FPS BOOST
 -- ============================================
-local MainTab = Window:CreateTab("🧠 Main", 4483362458)
+local FPSTab = Window:CreateTab("⚡ FPS Boost", 4483362458)
 
-MainTab:CreateParagraph({
-   Title = "✅ Working Features",
-   Content = "These features are confirmed working for this game!"
+FPSTab:CreateParagraph({
+   Title = "📊 Current FPS",
+   Content = "FPS will be displayed in the UI after enabling boost"
 })
 
-MainTab:CreateSection("Auto Collection")
+FPSTab:CreateSection("Main FPS Boost")
 
-MainTab:CreateToggle({
-   Name = "🧠 Auto Collect Brainrot",
-   CurrentValue = false,
-   Flag = "AutoCollect",
-   Callback = function(Value)
-      _G.AutoCollect = Value
+FPSTab:CreateButton({
+   Name = "🚀 ULTRA FPS BOOST (All Optimizations)",
+   Callback = function()
+      Settings.FPSBoost = true
+      Settings.RemoveTextures = true
+      Settings.RemoveParticles = true
+      Settings.LowGraphics = true
+      Settings.RemoveShadows = true
+      Settings.RemoveFog = true
+      Settings.ReduceDrawDistance = true
       
-      if Value then
-         Rayfield:Notify({
-            Title = "Auto Collect",
-            Content = "Collecting all items!",
-            Duration = 3,
-            Image = 4483362458,
-         })
-      end
-   end,
-})
-
-MainTab:CreateButton({
-   Name = "Collect All Visible Items NOW",
-   Callback = function()
-      CollectAllItems()
-   end,
-})
-
-MainTab:CreateButton({
-   Name = "Teleport to Nearest Item",
-   Callback = function()
-      TeleportToNearestItem()
-   end,
-})
-
-MainTab:CreateSection("Player Stats Manipulation")
-
-MainTab:CreateButton({
-   Name = "Max All Stats",
-   Callback = function()
-      MaxAllStats()
-   end,
-})
-
-MainTab:CreateButton({
-   Name = "Set All Values to 999999",
-   Callback = function()
-      SetAllValuesToMax()
-   end,
-})
-
-MainTab:CreateButton({
-   Name = "Duplicate All Number Values",
-   Callback = function()
-      DuplicateAllValues()
-   end,
-})
-
--- ============================================
--- TAB: PLAYER
--- ============================================
-local PlayerTab = Window:CreateTab("👤 Player", 4483362458)
-
-PlayerTab:CreateSection("Movement")
-
-PlayerTab:CreateSlider({
-   Name = "Walkspeed",
-   Range = {16, 500},
-   Increment = 1,
-   CurrentValue = 16,
-   Flag = "Walkspeed",
-   Callback = function(Value)
-      _G.Speed = Value
-      local character = player.Character
-      if character and character:FindFirstChild("Humanoid") then
-         character.Humanoid.WalkSpeed = Value
-      end
-   end,
-})
-
-PlayerTab:CreateSlider({
-   Name = "Jump Power",
-   Range = {50, 500},
-   Increment = 1,
-   CurrentValue = 50,
-   Flag = "JumpPower",
-   Callback = function(Value)
-      _G.JumpPower = Value
-      local character = player.Character
-      if character and character:FindFirstChild("Humanoid") then
-         character.Humanoid.JumpPower = Value
-      end
-   end,
-})
-
-PlayerTab:CreateToggle({
-   Name = "Infinite Jump",
-   CurrentValue = false,
-   Flag = "InfiniteJump",
-   Callback = function(Value)
-      _G.InfiniteJump = Value
-   end,
-})
-
-PlayerTab:CreateToggle({
-   Name = "No Clip (Walk Through Walls)",
-   CurrentValue = false,
-   Flag = "NoClip",
-   Callback = function(Value)
-      _G.NoClip = Value
-   end,
-})
-
-PlayerTab:CreateSection("Protection")
-
-PlayerTab:CreateToggle({
-   Name = "⛔ Anti Tsunami (God Mode)",
-   CurrentValue = false,
-   Flag = "AntiTsunami",
-   Callback = function(Value)
-      _G.AntiTsunami = Value
-      
-      if Value then
-         Rayfield:Notify({
-            Title = "Anti Tsunami",
-            Content = "God mode enabled! You won't die!",
-            Duration = 3,
-            Image = 4483362458,
-         })
-      end
-   end,
-})
-
-PlayerTab:CreateButton({
-   Name = "Teleport to Safe Zone (High Ground)",
-   Callback = function()
-      TeleportToSafeZone()
-   end,
-})
-
-PlayerTab:CreateButton({
-   Name = "Remove Tsunami Water",
-   Callback = function()
-      RemoveWater()
-   end,
-})
-
--- ============================================
--- TAB: REMOTES
--- ============================================
-local RemoteTab = Window:CreateTab("📡 Remotes", 4483362458)
-
-RemoteTab:CreateParagraph({
-   Title = "🔍 Remote Testing",
-   Content = "Use these to find which remotes work in this game"
-})
-
-RemoteTab:CreateButton({
-   Name = "List All Remotes",
-   Callback = function()
-      ListAllRemotes()
-   end,
-})
-
-RemoteTab:CreateButton({
-   Name = "Fire All Remotes (Test)",
-   Callback = function()
-      FireAllRemotes()
-   end,
-})
-
-RemoteTab:CreateButton({
-   Name = "Monitor Remote Calls",
-   Callback = function()
-      MonitorRemotes()
-   end,
-})
-
-RemoteTab:CreateSection("Direct Value Editing")
-
-RemoteTab:CreateButton({
-   Name = "Show All Player Values",
-   Callback = function()
-      ShowAllPlayerValues()
-   end,
-})
-
-RemoteTab:CreateButton({
-   Name = "Edit All IntValues to 999999",
-   Callback = function()
-      EditAllIntValues()
-   end,
-})
-
--- ============================================
--- TAB: MISC
--- ============================================
-local MiscTab = Window:CreateTab("⚙️ Misc", 4483362458)
-
-MiscTab:CreateToggle({
-   Name = "Fullbright",
-   CurrentValue = false,
-   Callback = function(Value)
-      if Value then
-         game.Lighting.Brightness = 3
-         game.Lighting.ClockTime = 14
-         game.Lighting.FogEnd = 100000
-         game.Lighting.GlobalShadows = false
-      else
-         game.Lighting.Brightness = 1
-         game.Lighting.ClockTime = 12
-         game.Lighting.FogEnd = 500
-         game.Lighting.GlobalShadows = true
-      end
-   end,
-})
-
-MiscTab:CreateButton({
-   Name = "Anti AFK",
-   Callback = function()
-      local vu = game:GetService("VirtualUser")
-      player.Idled:connect(function()
-         vu:Button2Down(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
-         wait(1)
-         vu:Button2Up(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
-      end)
+      ApplyAllOptimizations()
       
       Rayfield:Notify({
-         Title = "Anti AFK",
-         Content = "Anti AFK enabled!",
+         Title = "Ultra FPS Boost",
+         Content = "All optimizations applied! FPS should increase significantly!",
+         Duration = 5,
+         Image = 4483362458,
+      })
+   end,
+})
+
+FPSTab:CreateButton({
+   Name = "⚡ PERFORMANCE MODE (Balanced)",
+   Callback = function()
+      Settings.RemoveShadows = true
+      Settings.RemoveFog = true
+      Settings.RemoveParticles = true
+      Settings.LowGraphics = true
+      
+      ApplyPerformanceMode()
+      
+      Rayfield:Notify({
+         Title = "Performance Mode",
+         Content = "Balanced settings applied!",
          Duration = 3,
          Image = 4483362458,
       })
    end,
 })
 
-MiscTab:CreateButton({
-   Name = "Rejoin Server",
+FPSTab:CreateButton({
+   Name = "🎮 POTATO MODE (Maximum FPS)",
    Callback = function()
-      game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, game.JobId, player)
+      ApplyPotatoMode()
+      
+      Rayfield:Notify({
+         Title = "Potato Mode",
+         Content = "Maximum FPS mode! Graphics will be minimal!",
+         Duration = 3,
+         Image = 4483362458,
+      })
    end,
+})
+
+FPSTab:CreateSection("FPS Settings")
+
+FPSTab:CreateToggle({
+   Name = "Show FPS Counter",
+   CurrentValue = false,
+   Flag = "ShowFPS",
+   Callback = function(Value)
+      ShowFPSCounter(Value)
+   end,
+})
+
+FPSTab:CreateSlider({
+   Name = "FPS Cap (0 = Unlimited)",
+   Range = {0, 240},
+   Increment = 10,
+   Suffix = " FPS",
+   CurrentValue = 0,
+   Flag = "FPSCap",
+   Callback = function(Value)
+      Settings.FPSCap = Value
+      if Value > 0 then
+         setfpscap(Value)
+      else
+         setfpscap(999)
+      end
+   end,
+})
+
+-- ============================================
+-- TAB: GRAPHICS OPTIMIZATION
+-- ============================================
+local GraphicsTab = Window:CreateTab("🎨 Graphics", 4483362458)
+
+GraphicsTab:CreateSection("Texture & Visual Optimization")
+
+GraphicsTab:CreateToggle({
+   Name = "Remove All Textures",
+   CurrentValue = false,
+   Flag = "RemoveTextures",
+   Callback = function(Value)
+      Settings.RemoveTextures = Value
+      if Value then
+         RemoveTextures()
+      end
+   end,
+})
+
+GraphicsTab:CreateToggle({
+   Name = "Remove Particles & Effects",
+   CurrentValue = false,
+   Flag = "RemoveParticles",
+   Callback = function(Value)
+      Settings.RemoveParticles = Value
+      if Value then
+         RemoveParticles()
+      end
+   end,
+})
+
+GraphicsTab:CreateToggle({
+   Name = "Remove Decals & Stickers",
+   CurrentValue = false,
+   Flag = "RemoveDecals",
+   Callback = function(Value)
+      Settings.RemoveDecals = Value
+      if Value then
+         RemoveDecals()
+      end
+   end,
+})
+
+GraphicsTab:CreateToggle({
+   Name = "Simplify Meshes",
+   CurrentValue = false,
+   Flag = "SimplifyMeshes",
+   Callback = function(Value)
+      Settings.RemoveMeshes = Value
+      if Value then
+         SimplifyMeshes()
+      end
+   end,
+})
+
+GraphicsTab:CreateSection("Lighting Optimization")
+
+GraphicsTab:CreateToggle({
+   Name = "Remove Shadows",
+   CurrentValue = false,
+   Flag = "RemoveShadows",
+   Callback = function(Value)
+      Settings.RemoveShadows = Value
+      RemoveShadows(Value)
+   end,
+})
+
+GraphicsTab:CreateToggle({
+   Name = "Remove Fog",
+   CurrentValue = false,
+   Flag = "RemoveFog",
+   Callback = function(Value)
+      Settings.RemoveFog = Value
+      RemoveFog(Value)
+   end,
+})
+
+GraphicsTab:CreateToggle({
+   Name = "Disable Blur & Color Effects",
+   CurrentValue = false,
+   Flag = "DisableEffects",
+   Callback = function(Value)
+      DisableLightingEffects(Value)
+   end,
+})
+
+GraphicsTab:CreateSection("Render Distance")
+
+GraphicsTab:CreateToggle({
+   Name = "Reduce Draw Distance",
+   CurrentValue = false,
+   Flag = "ReduceDrawDistance",
+   Callback = function(Value)
+      Settings.ReduceDrawDistance = Value
+      ReduceDrawDistance(Value)
+   end,
+})
+
+GraphicsTab:CreateButton({
+   Name = "Hide Distant Objects",
+   Callback = function()
+      HideDistantObjects()
+   end,
+})
+
+-- ============================================
+-- TAB: ANTI LAG
+-- ============================================
+local AntiLagTab = Window:CreateTab("🛡️ Anti Lag", 4483362458)
+
+AntiLagTab:CreateSection("Memory Optimization")
+
+AntiLagTab:CreateButton({
+   Name = "Clear Memory Cache",
+   Callback = function()
+      ClearMemoryCache()
+   end,
+})
+
+AntiLagTab:CreateButton({
+   Name = "Remove Unused Assets",
+   Callback = function()
+      RemoveUnusedAssets()
+   end,
+})
+
+AntiLagTab:CreateButton({
+   Name = "Optimize Workspace",
+   Callback = function()
+      OptimizeWorkspace()
+   end,
+})
+
+AntiLagTab:CreateSection("Animation & Physics")
+
+AntiLagTab:CreateToggle({
+   Name = "Disable Animations",
+   CurrentValue = false,
+   Flag = "DisableAnimations",
+   Callback = function(Value)
+      Settings.DisableAnimations = Value
+      DisableAnimations(Value)
+   end,
+})
+
+AntiLagTab:CreateToggle({
+   Name = "Reduce Physics Quality",
+   CurrentValue = false,
+   Flag = "ReducePhysics",
+   Callback = function(Value)
+      ReducePhysics(Value)
+   end,
+})
+
+AntiLagTab:CreateButton({
+   Name = "Fix Physics Lag",
+   Callback = function()
+      FixPhysicsLag()
+   end,
+})
+
+AntiLagTab:CreateSection("Network Optimization")
+
+AntiLagTab:CreateButton({
+   Name = "Optimize Network Traffic",
+   Callback = function()
+      OptimizeNetwork()
+   end,
+})
+
+AntiLagTab:CreateToggle({
+   Name = "Reduce Network Data",
+   CurrentValue = false,
+   Flag = "ReduceNetwork",
+   Callback = function(Value)
+      ReduceNetworkData(Value)
+   end,
+})
+
+-- ============================================
+-- TAB: ADVANCED
+-- ============================================
+local AdvancedTab = Window:CreateTab("⚙️ Advanced", 4483362458)
+
+AdvancedTab:CreateSection("Advanced Optimizations")
+
+AdvancedTab:CreateToggle({
+   Name = "Remove Terrain Textures",
+   CurrentValue = false,
+   Flag = "RemoveTerrain",
+   Callback = function(Value)
+      Settings.RemoveTerrain = Value
+      RemoveTerrainTextures(Value)
+   end,
+})
+
+AdvancedTab:CreateToggle({
+   Name = "Disable Post-Processing",
+   CurrentValue = false,
+   Flag = "DisablePostProcessing",
+   Callback = function(Value)
+      DisablePostProcessing(Value)
+   end,
+})
+
+AdvancedTab:CreateButton({
+   Name = "Delete All Unnecessary Parts",
+   Callback = function()
+      DeleteUnnecessaryParts()
+   end,
+})
+
+AdvancedTab:CreateButton({
+   Name = "Optimize All Characters",
+   Callback = function()
+      OptimizeAllCharacters()
+   end,
+})
+
+AdvancedTab:CreateSection("Extreme Optimizations")
+
+AdvancedTab:CreateButton({
+   Name = "⚠️ DESTROY ALL VISUALS (MAX FPS)",
+   Callback = function()
+      DestroyAllVisuals()
+      
+      Rayfield:Notify({
+         Title = "Maximum Optimization",
+         Content = "All visuals destroyed! Max FPS mode!",
+         Duration = 5,
+         Image = 4483362458,
+      })
+   end,
+})
+
+AdvancedTab:CreateButton({
+   Name = "Restore Default Settings",
+   Callback = function()
+      RestoreDefaults()
+   end,
+})
+
+-- ============================================
+-- TAB: INFO
+-- ============================================
+local InfoTab = Window:CreateTab("ℹ️ Info", 4483362458)
+
+InfoTab:CreateParagraph({
+   Title = "📊 System Information",
+   Content = "Monitor your game performance"
+})
+
+InfoTab:CreateButton({
+   Name = "Show Performance Stats",
+   Callback = function()
+      ShowPerformanceStats()
+   end,
+})
+
+InfoTab:CreateButton({
+   Name = "Show Memory Usage",
+   Callback = function()
+      ShowMemoryUsage()
+   end,
+})
+
+InfoTab:CreateSection("Recommendations")
+
+InfoTab:CreateParagraph({
+   Title = "🎮 Low-End PC",
+   Content = "Recommended: Ultra FPS Boost + Potato Mode\nRemove all textures and particles"
+})
+
+InfoTab:CreateParagraph({
+   Title = "💻 Mid-Range PC",
+   Content = "Recommended: Performance Mode\nRemove shadows and fog only"
+})
+
+InfoTab:CreateParagraph({
+   Title = "🖥️ High-End PC",
+   Content = "Recommended: Graphics optimizations only\nKeep visuals, remove shadows"
 })
 
 -- ============================================
 -- FUNCTIONS
 -- ============================================
 
-function CollectAllItems()
-   local collected = 0
-   local character = player.Character
-   if not character or not character:FindFirstChild("HumanoidRootPart") then
-      return
-   end
+-- Main Optimization Functions
+function ApplyAllOptimizations()
+   print("\n⚡ Applying ALL optimizations...")
    
-   local hrp = character.HumanoidRootPart
+   RemoveTextures()
+   RemoveParticles()
+   RemoveDecals()
+   RemoveShadows(true)
+   RemoveFog(true)
+   DisableLightingEffects(true)
+   ReduceDrawDistance(true)
+   DisableAnimations(true)
+   ReducePhysics(true)
+   RemoveTerrainTextures(true)
+   DisablePostProcessing(true)
+   OptimizeWorkspace()
    
-   -- Method 1: Teleport to items
-   for _, item in pairs(GameInfo.BrainrotItems) do
-      if item and item.Parent then
-         pcall(function()
-            local pos = item:IsA("Model") and item.PrimaryPart and item.PrimaryPart.Position or item.Position
-            if pos then
-               hrp.CFrame = CFrame.new(pos)
-               wait(0.1)
-               collected = collected + 1
-            end
-         end)
-      end
-   end
+   print("✅ All optimizations applied!")
+end
+
+function ApplyPerformanceMode()
+   print("\n⚡ Applying Performance Mode...")
    
-   -- Method 2: Search workspace again
+   RemoveShadows(true)
+   RemoveFog(true)
+   RemoveParticles()
+   DisableLightingEffects(true)
+   
+   Lighting.Brightness = 2
+   Lighting.GlobalShadows = false
+   
+   print("✅ Performance mode applied!")
+end
+
+function ApplyPotatoMode()
+   print("\n🥔 Applying POTATO MODE...")
+   
+   -- Remove everything
    for _, obj in pairs(Workspace:GetDescendants()) do
-      if obj:IsA("BasePart") then
-         local name = obj.Name:lower()
-         if name:find("brain") or name:find("item") or name:find("coin") then
-            pcall(function()
-               hrp.CFrame = CFrame.new(obj.Position)
-               wait(0.1)
-               collected = collected + 1
-            end)
-         end
+      pcall(function()
+         if obj:IsA("Texture") then obj:Destroy() end
+         if obj:IsA("Decal") then obj:Destroy() end
+         if obj:IsA("ParticleEmitter") then obj:Destroy() end
+         if obj:IsA("Trail") then obj:Destroy() end
+         if obj:IsA("Smoke") then obj:Destroy() end
+         if obj:IsA("Fire") then obj:Destroy() end
+         if obj:IsA("Sparkles") then obj:Destroy() end
+         if obj:IsA("MeshPart") then obj.TextureID = "" end
+         if obj:IsA("Part") then obj.Material = Enum.Material.SmoothPlastic end
+      end)
+   end
+   
+   -- Lighting to minimum
+   Lighting.GlobalShadows = false
+   Lighting.FogEnd = 100000
+   Lighting.Brightness = 0
+   
+   -- Remove all lighting effects
+   for _, effect in pairs(Lighting:GetChildren()) do
+      if effect:IsA("PostEffect") then
+         effect.Enabled = false
       end
    end
    
-   Rayfield:Notify({
-      Title = "Collection Complete",
-      Content = "Collected " .. collected .. " items!",
-      Duration = 3,
-      Image = 4483362458,
-   })
+   -- Set graphics quality to minimum
+   settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
+   
+   print("✅ POTATO MODE activated!")
 end
 
-function TeleportToNearestItem()
-   local character = player.Character
-   if not character or not character:FindFirstChild("HumanoidRootPart") then
-      return
-   end
-   
-   local hrp = character.HumanoidRootPart
-   local nearest = nil
-   local shortestDist = math.huge
-   
-   for _, obj in pairs(Workspace:GetDescendants()) do
-      if obj:IsA("BasePart") then
-         local name = obj.Name:lower()
-         if name:find("brain") or name:find("item") then
-            local dist = (hrp.Position - obj.Position).Magnitude
-            if dist < shortestDist then
-               shortestDist = dist
-               nearest = obj
-            end
-         end
-      end
-   end
-   
-   if nearest then
-      hrp.CFrame = CFrame.new(nearest.Position)
-      Rayfield:Notify({
-         Title = "Teleported",
-         Content = "Teleported to nearest item!",
-         Duration = 2,
-         Image = 4483362458,
-      })
-   end
-end
-
-function MaxAllStats()
-   local edited = 0
-   
-   for _, obj in pairs(player:GetDescendants()) do
-      if obj:IsA("IntValue") or obj:IsA("NumberValue") then
-         pcall(function()
-            obj.Value = 999999
-            edited = edited + 1
-         end)
-      end
-   end
-   
-   Rayfield:Notify({
-      Title = "Stats Maxed",
-      Content = "Edited " .. edited .. " values!",
-      Duration = 3,
-      Image = 4483362458,
-   })
-end
-
-function SetAllValuesToMax()
-   MaxAllStats()
-end
-
-function DuplicateAllValues()
-   local duplicated = 0
-   
-   for _, obj in pairs(player:GetDescendants()) do
-      if obj:IsA("IntValue") or obj:IsA("NumberValue") then
-         pcall(function()
-            obj.Value = obj.Value * 2
-            duplicated = duplicated + 1
-         end)
-      end
-   end
-   
-   Rayfield:Notify({
-      Title = "Values Duplicated",
-      Content = "Duplicated " .. duplicated .. " values!",
-      Duration = 3,
-      Image = 4483362458,
-   })
-end
-
-function TeleportToSafeZone()
-   local character = player.Character
-   if character and character:FindFirstChild("HumanoidRootPart") then
-      character.HumanoidRootPart.CFrame = CFrame.new(0, 1000, 0)
-      
-      Rayfield:Notify({
-         Title = "Safe Zone",
-         Content = "Teleported to high ground!",
-         Duration = 3,
-         Image = 4483362458,
-      })
-   end
-end
-
-function RemoveWater()
+-- Texture Removal
+function RemoveTextures()
+   print("\n🎨 Removing textures...")
    local removed = 0
    
    for _, obj in pairs(Workspace:GetDescendants()) do
-      if obj:IsA("Part") then
-         local name = obj.Name:lower()
-         if name:find("water") or name:find("tsunami") or name:find("flood") then
-            pcall(function()
+      pcall(function()
+         if obj:IsA("Texture") then
+            obj:Destroy()
+            removed = removed + 1
+         elseif obj:IsA("MeshPart") then
+            obj.TextureID = ""
+            removed = removed + 1
+         elseif obj:IsA("Part") then
+            obj.Material = Enum.Material.SmoothPlastic
+         end
+      end)
+   end
+   
+   print("✅ Removed " .. removed .. " textures")
+   
+   Rayfield:Notify({
+      Title = "Textures Removed",
+      Content = "Removed " .. removed .. " textures!",
+      Duration = 3,
+      Image = 4483362458,
+   })
+end
+
+-- Particle Removal
+function RemoveParticles()
+   print("\n✨ Removing particles...")
+   local removed = 0
+   
+   for _, obj in pairs(Workspace:GetDescendants()) do
+      pcall(function()
+         if obj:IsA("ParticleEmitter") or obj:IsA("Trail") or 
+            obj:IsA("Smoke") or obj:IsA("Fire") or obj:IsA("Sparkles") then
+            obj:Destroy()
+            removed = removed + 1
+         end
+      end)
+   end
+   
+   print("✅ Removed " .. removed .. " particle effects")
+   
+   Rayfield:Notify({
+      Title = "Particles Removed",
+      Content = "Removed " .. removed .. " effects!",
+      Duration = 3,
+      Image = 4483362458,
+   })
+end
+
+-- Decal Removal
+function RemoveDecals()
+   print("\n🖼️ Removing decals...")
+   local removed = 0
+   
+   for _, obj in pairs(Workspace:GetDescendants()) do
+      pcall(function()
+         if obj:IsA("Decal") or obj:IsA("SurfaceGui") then
+            obj:Destroy()
+            removed = removed + 1
+         end
+      end)
+   end
+   
+   print("✅ Removed " .. removed .. " decals")
+end
+
+-- Mesh Simplification
+function SimplifyMeshes()
+   print("\n🔷 Simplifying meshes...")
+   
+   for _, obj in pairs(Workspace:GetDescendants()) do
+      pcall(function()
+         if obj:IsA("SpecialMesh") then
+            obj:Destroy()
+         elseif obj:IsA("MeshPart") then
+            obj.RenderFidelity = Enum.RenderFidelity.Performance
+         end
+      end)
+   end
+   
+   print("✅ Meshes simplified")
+end
+
+-- Shadow Removal
+function RemoveShadows(enabled)
+   if enabled then
+      Lighting.GlobalShadows = false
+      Lighting.Brightness = 2
+      
+      for _, obj in pairs(Workspace:GetDescendants()) do
+         pcall(function()
+            if obj:IsA("Part") or obj:IsA("MeshPart") then
+               obj.CastShadow = false
+            end
+         end)
+      end
+      
+      print("✅ Shadows removed")
+   else
+      Lighting.GlobalShadows = true
+      Lighting.Brightness = 1
+   end
+end
+
+-- Fog Removal
+function RemoveFog(enabled)
+   if enabled then
+      Lighting.FogEnd = 100000
+      Lighting.FogStart = 0
+      print("✅ Fog removed")
+   else
+      Lighting.FogEnd = 500
+   end
+end
+
+-- Lighting Effects
+function DisableLightingEffects(enabled)
+   if enabled then
+      for _, effect in pairs(Lighting:GetChildren()) do
+         pcall(function()
+            if effect:IsA("BloomEffect") or effect:IsA("BlurEffect") or 
+               effect:IsA("ColorCorrectionEffect") or effect:IsA("SunRaysEffect") or
+               effect:IsA("DepthOfFieldEffect") then
+               effect.Enabled = false
+            end
+         end)
+      end
+      print("✅ Lighting effects disabled")
+   end
+end
+
+-- Draw Distance
+function ReduceDrawDistance(enabled)
+   if enabled then
+      for _, obj in pairs(Workspace:GetDescendants()) do
+         pcall(function()
+            if obj:IsA("BasePart") then
+               local distance = (player.Character.HumanoidRootPart.Position - obj.Position).Magnitude
+               if distance > 500 then
+                  obj.Transparency = 1
+                  obj.CanCollide = false
+               end
+            end
+         end)
+      end
+      print("✅ Draw distance reduced")
+   end
+end
+
+function HideDistantObjects()
+   local hidden = 0
+   local character = player.Character
+   
+   if character and character:FindFirstChild("HumanoidRootPart") then
+      local hrp = character.HumanoidRootPart
+      
+      for _, obj in pairs(Workspace:GetDescendants()) do
+         pcall(function()
+            if obj:IsA("BasePart") then
+               local distance = (hrp.Position - obj.Position).Magnitude
+               if distance > 1000 then
+                  obj.Parent = nil
+                  hidden = hidden + 1
+               end
+            end
+         end)
+      end
+   end
+   
+   Rayfield:Notify({
+      Title = "Objects Hidden",
+      Content = "Hidden " .. hidden .. " distant objects!",
+      Duration = 3,
+      Image = 4483362458,
+   })
+end
+
+-- Memory Optimization
+function ClearMemoryCache()
+   print("\n🧹 Clearing memory cache...")
+   
+   -- Force garbage collection
+   for i = 1, 10 do
+      wait()
+      pcall(function()
+         game:GetService("ContentProvider"):PreloadAsync({})
+      end)
+   end
+   
+   collectgarbage("collect")
+   
+   print("✅ Memory cache cleared")
+   
+   Rayfield:Notify({
+      Title = "Memory Cleared",
+      Content = "Memory cache cleared!",
+      Duration = 3,
+      Image = 4483362458,
+   })
+end
+
+function RemoveUnusedAssets()
+   print("\n🗑️ Removing unused assets...")
+   local removed = 0
+   
+   for _, obj in pairs(Workspace:GetDescendants()) do
+      pcall(function()
+         if obj:IsA("Sound") and not obj.IsPlaying then
+            obj:Destroy()
+            removed = removed + 1
+         end
+      end)
+   end
+   
+   print("✅ Removed " .. removed .. " unused assets")
+end
+
+function OptimizeWorkspace()
+   print("\n⚙️ Optimizing workspace...")
+   
+   -- Remove unnecessary parts
+   for _, obj in pairs(Workspace:GetDescendants()) do
+      pcall(function()
+         if obj:IsA("BasePart") then
+            if obj.Transparency >= 0.95 then
+               obj.CanCollide = false
+            end
+         end
+      end)
+   end
+   
+   print("✅ Workspace optimized")
+   
+   Rayfield:Notify({
+      Title = "Workspace Optimized",
+      Content = "Workspace has been optimized!",
+      Duration = 3,
+      Image = 4483362458,
+   })
+end
+
+-- Animation Control
+function DisableAnimations(enabled)
+   if enabled then
+      for _, player in pairs(Players:GetPlayers()) do
+         pcall(function()
+            if player.Character then
+               for _, track in pairs(player.Character.Humanoid:GetPlayingAnimationTracks()) do
+                  track:Stop()
+               end
+            end
+         end)
+      end
+      print("✅ Animations disabled")
+   end
+end
+
+-- Physics Optimization
+function ReducePhysics(enabled)
+   if enabled then
+      settings().Physics.AllowSleep = true
+      settings().Physics.PhysicsEnvironmentalThrottle = Enum.EnviromentalPhysicsThrottle.DefaultAuto
+      
+      for _, obj in pairs(Workspace:GetDescendants()) do
+         pcall(function()
+            if obj:IsA("BasePart") then
+               obj.Massless = true
+            end
+         end)
+      end
+      
+      print("✅ Physics quality reduced")
+   end
+end
+
+function FixPhysicsLag()
+   for _, obj in pairs(Workspace:GetDescendants()) do
+      pcall(function()
+         if obj:IsA("BasePart") then
+            obj.Massless = true
+            obj.CanCollide = true
+         end
+      end)
+   end
+   
+   Rayfield:Notify({
+      Title = "Physics Fixed",
+      Content = "Physics lag should be reduced!",
+      Duration = 3,
+      Image = 4483362458,
+   })
+end
+
+-- Network Optimization
+function OptimizeNetwork()
+   settings().Network.IncomingReplicationLag = 0
+   
+   Rayfield:Notify({
+      Title = "Network Optimized",
+      Content = "Network traffic optimized!",
+      Duration = 3,
+      Image = 4483362458,
+   })
+end
+
+function ReduceNetworkData(enabled)
+   if enabled then
+      settings().Network.IncomingReplicationLag = 0
+      settings().Network.FreeMemoryMBytes = 1
+   end
+end
+
+-- Terrain Optimization
+function RemoveTerrainTextures(enabled)
+   if enabled then
+      pcall(function()
+         Workspace.Terrain.Decoration = false
+         Workspace.Terrain.WaterWaveSize = 0
+         Workspace.Terrain.WaterWaveSpeed = 0
+         Workspace.Terrain.WaterReflectance = 0
+         Workspace.Terrain.WaterTransparency = 0
+      end)
+      print("✅ Terrain textures removed")
+   end
+end
+
+-- Post Processing
+function DisablePostProcessing(enabled)
+   if enabled then
+      for _, effect in pairs(Lighting:GetChildren()) do
+         pcall(function()
+            if effect:IsA("PostEffect") then
+               effect.Enabled = false
+            end
+         end)
+      end
+      print("✅ Post-processing disabled")
+   end
+end
+
+-- Extreme Optimizations
+function DeleteUnnecessaryParts()
+   local deleted = 0
+   
+   for _, obj in pairs(Workspace:GetDescendants()) do
+      pcall(function()
+         if obj:IsA("BasePart") then
+            if obj.Transparency >= 0.98 or obj.Size.X < 0.5 then
                obj:Destroy()
-               removed = removed + 1
+               deleted = deleted + 1
+            end
+         end
+      end)
+   end
+   
+   Rayfield:Notify({
+      Title = "Parts Deleted",
+      Content = "Deleted " .. deleted .. " unnecessary parts!",
+      Duration = 3,
+      Image = 4483362458,
+   })
+end
+
+function OptimizeAllCharacters()
+   for _, player in pairs(Players:GetPlayers()) do
+      pcall(function()
+         if player.Character then
+            for _, obj in pairs(player.Character:GetDescendants()) do
+               if obj:IsA("Accessory") then
+                  obj:Destroy()
+               elseif obj:IsA("Shirt") or obj:IsA("Pants") then
+                  obj:Destroy()
+               end
+            end
+         end
+      end)
+   end
+   
+   Rayfield:Notify({
+      Title = "Characters Optimized",
+      Content = "All characters optimized!",
+      Duration = 3,
+      Image = 4483362458,
+   })
+end
+
+function DestroyAllVisuals()
+   ApplyPotatoMode()
+   RemoveTextures()
+   RemoveParticles()
+   RemoveDecals()
+   SimplifyMeshes()
+   DeleteUnnecessaryParts()
+end
+
+function RestoreDefaults()
+   Lighting.GlobalShadows = true
+   Lighting.FogEnd = 500
+   Lighting.Brightness = 1
+   
+   for _, effect in pairs(Lighting:GetChildren()) do
+      pcall(function()
+         if effect:IsA("PostEffect") then
+            effect.Enabled = true
+         end
+      end)
+   end
+   
+   settings().Rendering.QualityLevel = Enum.QualityLevel.Automatic
+   
+   Rayfield:Notify({
+      Title = "Defaults Restored",
+      Content = "Graphics restored to default!",
+      Duration = 3,
+      Image = 4483362458,
+   })
+end
+
+-- Performance Stats
+function ShowPerformanceStats()
+   local stats = game:GetService("Stats")
+   
+   print("\n" .. string.rep("=", 70))
+   print("PERFORMANCE STATISTICS")
+   print(string.rep("=", 70))
+   print("FPS: " .. math.floor(1 / RunService.RenderStepped:Wait()))
+   print("Memory: " .. math.floor(stats:GetTotalMemoryUsageMb()) .. " MB")
+   print("Ping: " .. math.floor(player:GetNetworkPing()) .. " ms")
+   print(string.rep("=", 70) .. "\n")
+   
+   Rayfield:Notify({
+      Title = "Performance Stats",
+      Content = "Check console (F9) for details!",
+      Duration = 3,
+      Image = 4483362458,
+   })
+end
+
+function ShowMemoryUsage()
+   local stats = game:GetService("Stats")
+   local memory = math.floor(stats:GetTotalMemoryUsageMb())
+   
+   print("\n📊 Memory Usage: " .. memory .. " MB")
+   
+   Rayfield:Notify({
+      Title = "Memory Usage",
+      Content = memory .. " MB currently used",
+      Duration = 3,
+      Image = 4483362458,
+   })
+end
+
+-- FPS Counter
+function ShowFPSCounter(enabled)
+   if enabled then
+      local ScreenGui = Instance.new("ScreenGui")
+      ScreenGui.Name = "FPSCounter"
+      ScreenGui.Parent = player.PlayerGui
+      ScreenGui.ResetOnSpawn = false
+      
+      local Frame = Instance.new("Frame")
+      Frame.Size = UDim2.new(0, 200, 0, 60)
+      Frame.Position = UDim2.new(1, -210, 0, 10)
+      Frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+      Frame.BorderSizePixel = 0
+      Frame.Parent = ScreenGui
+      
+      local UICorner = Instance.new("UICorner")
+      UICorner.CornerRadius = UDim.new(0, 10)
+      UICorner.Parent = Frame
+      
+      local FPSLabel = Instance.new("TextLabel")
+      FPSLabel.Size = UDim2.new(1, 0, 1, 0)
+      FPSLabel.BackgroundTransparency = 1
+      FPSLabel.Text = "FPS: Calculating..."
+      FPSLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
+      FPSLabel.TextSize = 20
+      FPSLabel.Font = Enum.Font.GothamBold
+      FPSLabel.Parent = Frame
+      
+      -- FPS Update Loop
+      task.spawn(function()
+         while FPSLabel.Parent do
+            local fps = math.floor(1 / RunService.RenderStepped:Wait())
+            FPSLabel.Text = "FPS: " .. fps
+            
+            -- Color based on FPS
+            if fps >= 60 then
+               FPSLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
+            elseif fps >= 30 then
+               FPSLabel.TextColor3 = Color3.fromRGB(255, 255, 0)
+            else
+               FPSLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
+            end
+            
+            wait(0.5)
+         end
+      end)
+   else
+      if player.PlayerGui:FindFirstChild("FPSCounter") then
+         player.PlayerGui.FPSCounter:Destroy()
+      end
+   end
+end
+
+-- ============================================
+-- AUTO OPTIMIZATION LOOP
+-- ============================================
+
+-- Continuously remove new particles/effects
+task.spawn(function()
+   while wait(5) do
+      if Settings.RemoveParticles then
+         for _, obj in pairs(Workspace:GetDescendants()) do
+            pcall(function()
+               if obj:IsA("ParticleEmitter") or obj:IsA("Trail") then
+                  obj:Destroy()
+               end
             end)
          end
       end
-   end
-   
-   Rayfield:Notify({
-      Title = "Water Removed",
-      Content = "Removed " .. removed .. " water parts!",
-      Duration = 3,
-      Image = 4483362458,
-   })
-end
-
-function ListAllRemotes()
-   print("\n" .. string.rep("=", 70))
-   print("ALL REMOTES IN GAME")
-   print(string.rep("=", 70))
-   
-   for i, remote in pairs(GameInfo.Remotes) do
-      print(i .. ". " .. remote:GetFullName() .. " (" .. remote.ClassName .. ")")
-   end
-   
-   print("\nTotal: " .. #GameInfo.Remotes)
-   print(string.rep("=", 70) .. "\n")
-   
-   Rayfield:Notify({
-      Title = "Remotes Listed",
-      Content = "Found " .. #GameInfo.Remotes .. " remotes. Check F9!",
-      Duration = 3,
-      Image = 4483362458,
-   })
-end
-
-function FireAllRemotes()
-   local fired = 0
-   
-   for _, remote in pairs(GameInfo.Remotes) do
-      pcall(function()
-         if remote:IsA("RemoteEvent") then
-            -- Try different argument patterns
-            remote:FireServer()
-            remote:FireServer(1)
-            remote:FireServer(100)
-            remote:FireServer(999999)
-            remote:FireServer("Collect")
-            remote:FireServer("Add")
-            remote:FireServer("Duplicate")
-            fired = fired + 1
-         end
-      end)
-   end
-   
-   Rayfield:Notify({
-      Title = "Remotes Fired",
-      Content = "Fired " .. fired .. " remotes!",
-      Duration = 3,
-      Image = 4483362458,
-   })
-end
-
-function MonitorRemotes()
-   local mt = getrawmetatable(game)
-   local oldNamecall = mt.__namecall
-   setreadonly(mt, false)
-   
-   mt.__namecall = newcclosure(function(self, ...)
-      local method = getnamecallmethod()
-      local args = {...}
-      
-      if method == "FireServer" or method == "InvokeServer" then
-         print("\n🔴 REMOTE CALLED:")
-         print("   Name: " .. self:GetFullName())
-         print("   Method: " .. method)
-         print("   Args: " .. #args)
-         for i, arg in pairs(args) do
-            print("      [" .. i .. "] = " .. tostring(arg))
-         end
-      end
-      
-      return oldNamecall(self, ...)
-   end)
-   
-   setreadonly(mt, true)
-   
-   Rayfield:Notify({
-      Title = "Monitor Active",
-      Content = "Check F9 console for remote calls!",
-      Duration = 5,
-      Image = 4483362458,
-   })
-end
-
-function ShowAllPlayerValues()
-   print("\n" .. string.rep("=", 70))
-   print("ALL PLAYER VALUES")
-   print(string.rep("=", 70))
-   
-   for _, obj in pairs(player:GetDescendants()) do
-      if obj:IsA("IntValue") or obj:IsA("NumberValue") or obj:IsA("BoolValue") then
-         print(obj:GetFullName() .. " = " .. tostring(obj.Value))
-      end
-   end
-   
-   print(string.rep("=", 70) .. "\n")
-   
-   Rayfield:Notify({
-      Title = "Values Listed",
-      Content = "All player values listed in F9!",
-      Duration = 3,
-      Image = 4483362458,
-   })
-end
-
-function EditAllIntValues()
-   local edited = 0
-   
-   for _, obj in pairs(player:GetDescendants()) do
-      if obj:IsA("IntValue") or obj:IsA("NumberValue") then
-         pcall(function()
-            obj.Value = 999999
-            print("✅ Edited: " .. obj:GetFullName() .. " = 999999")
-            edited = edited + 1
-         end)
-      end
-   end
-   
-   Rayfield:Notify({
-      Title = "Values Edited",
-      Content = "Edited " .. edited .. " values to 999999!",
-      Duration = 3,
-      Image = 4483362458,
-   })
-end
-
--- ============================================
--- LOOPS
--- ============================================
-
--- Auto Collect Loop
-task.spawn(function()
-   while task.wait(1) do
-      if _G.AutoCollect then
-         pcall(function()
-            CollectAllItems()
-         end)
-      end
-   end
-end)
-
--- Anti Tsunami Loop
-task.spawn(function()
-   while task.wait(0.1) do
-      if _G.AntiTsunami then
-         pcall(function()
-            local character = player.Character
-            if character and character:FindFirstChild("Humanoid") then
-               character.Humanoid.Health = character.Humanoid.MaxHealth
-            end
-            
-            -- Keep above water level
-            if character and character:FindFirstChild("HumanoidRootPart") then
-               local hrp = character.HumanoidRootPart
-               if hrp.Position.Y < 50 then
-                  hrp.CFrame = CFrame.new(hrp.Position.X, 50, hrp.Position.Z)
-               end
-            end
-         end)
-      end
-   end
-end)
-
--- Walkspeed Loop
-task.spawn(function()
-   while task.wait(0.1) do
-      if _G.Speed > 16 then
-         pcall(function()
-            local character = player.Character
-            if character and character:FindFirstChild("Humanoid") then
-               character.Humanoid.WalkSpeed = _G.Speed
-            end
-         end)
-      end
-   end
-end)
-
--- Jump Power Loop
-task.spawn(function()
-   while task.wait(0.1) do
-      if _G.JumpPower > 50 then
-         pcall(function()
-            local character = player.Character
-            if character and character:FindFirstChild("Humanoid") then
-               character.Humanoid.JumpPower = _G.JumpPower
-            end
-         end)
-      end
-   end
-end)
-
--- No Clip Loop
-RunService.Stepped:Connect(function()
-   if _G.NoClip then
-      pcall(function()
-         local character = player.Character
-         if character then
-            for _, part in pairs(character:GetDescendants()) do
-               if part:IsA("BasePart") then
-                  part.CanCollide = false
-               end
-            end
-         end
-      end)
-   end
-end)
-
--- Infinite Jump
-game:GetService("UserInputService").JumpRequest:Connect(function()
-   if _G.InfiniteJump then
-      local character = player.Character
-      if character and character:FindFirstChild("Humanoid") then
-         character.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
-      end
-   end
-end)
-
--- Character Respawn
-player.CharacterAdded:Connect(function(character)
-   wait(0.5)
-   if character:FindFirstChild("Humanoid") then
-      character.Humanoid.WalkSpeed = _G.Speed
-      character.Humanoid.JumpPower = _G.JumpPower
    end
 end)
 
 -- Load Complete
 Rayfield:Notify({
-   Title = "Script Loaded!",
-   Content = "Escape Tsunami for Brainrot loaded! Use debug tools to find working features!",
+   Title = "FPS Optimizer Loaded!",
+   Content = "Click 'Ultra FPS Boost' for maximum performance!",
    Duration = 5,
    Image = 4483362458,
 })
 
-print("\n✅ SCRIPT LOADED!")
-print("📌 Use 'List All Remotes' to see available remotes")
-print("📌 Use 'Monitor Remote Calls' to see which remotes fire")
-print("📌 Use 'Show All Player Values' to see editable values")
-print("📌 Toggle features and check what works!")
+print("\n✅ FPS OPTIMIZER & ANTI LAG LOADED!")
+print("🚀 Click 'Ultra FPS Boost' for best results!")
+print("🥔 Use 'Potato Mode' for maximum FPS on low-end PCs!")
 print(string.rep("=", 70) .. "\n")
