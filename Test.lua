@@ -663,16 +663,155 @@ for _, button in pairs(buttons) do
    end)
 end
 
--- Close Button
+-- Mini Toggle Button (appears after close)
+local MiniButton = Instance.new("ImageButton")
+MiniButton.Name = "MiniToggle"
+MiniButton.Size = UDim2.new(0, 60, 0, 60)
+MiniButton.Position = UDim2.new(1, -70, 0.5, -30)
+MiniButton.BackgroundColor3 = Theme.Primary
+MiniButton.BorderSizePixel = 0
+MiniButton.Visible = false
+MiniButton.Image = ""
+MiniButton.AutoButtonColor = false
+MiniButton.Parent = ScreenGui
+
+local MiniCorner = Instance.new("UICorner")
+MiniCorner.CornerRadius = UDim.new(0, 30)
+MiniCorner.Parent = MiniButton
+
+-- Gradient for mini button
+local MiniGradient = Instance.new("UIGradient")
+MiniGradient.Color = ColorSequence.new({
+   ColorSequenceKeypoint.new(0, Theme.Primary),
+   ColorSequenceKeypoint.new(1, Theme.Accent)
+})
+MiniGradient.Rotation = 45
+MiniGradient.Parent = MiniButton
+
+-- Icon for mini button
+local MiniIcon = Instance.new("TextLabel")
+MiniIcon.Size = UDim2.new(1, 0, 1, 0)
+MiniIcon.BackgroundTransparency = 1
+MiniIcon.Text = "⚡"
+MiniIcon.TextColor3 = Theme.Text
+MiniIcon.TextSize = 30
+MiniIcon.Font = Enum.Font.GothamBold
+MiniIcon.Parent = MiniButton
+
+-- Pulse animation for mini button
+local function PulseMini()
+   while MiniButton.Visible do
+      TweenService:Create(MiniButton, TweenInfo.new(1, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), {
+         Size = UDim2.new(0, 65, 0, 65)
+      }):Play()
+      task.wait(1)
+      TweenService:Create(MiniButton, TweenInfo.new(1, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), {
+         Size = UDim2.new(0, 60, 0, 60)
+      }):Play()
+      task.wait(1)
+   end
+end
+
+-- Mini button hover effect
+MiniButton.MouseEnter:Connect(function()
+   TweenService:Create(MiniButton, TweenInfo.new(0.2), {
+      Size = UDim2.new(0, 70, 0, 70),
+      BackgroundColor3 = Theme.Accent
+   }):Play()
+   TweenService:Create(MiniIcon, TweenInfo.new(0.2), {
+      Rotation = 15
+   }):Play()
+end)
+
+MiniButton.MouseLeave:Connect(function()
+   TweenService:Create(MiniButton, TweenInfo.new(0.2), {
+      Size = UDim2.new(0, 60, 0, 60),
+      BackgroundColor3 = Theme.Primary
+   }):Play()
+   TweenService:Create(MiniIcon, TweenInfo.new(0.2), {
+      Rotation = 0
+   }):Play()
+end)
+
+-- Mini button click - reopen UI
+MiniButton.MouseButton1Click:Connect(function()
+   -- Hide mini button
+   TweenService:Create(MiniButton, TweenInfo.new(0.3), {
+      Size = UDim2.new(0, 0, 0, 0)
+   }):Play()
+   
+   task.wait(0.3)
+   MiniButton.Visible = false
+   
+   -- Show main UI again
+   MainContainer.Visible = true
+   TweenService:Create(Blur, TweenInfo.new(0.3), {Size = 10}):Play()
+   TweenService:Create(MainContainer, TweenInfo.new(0.5, Enum.EasingStyle.Back), {
+      Size = UDim2.new(0, 450, 0, 550)
+   }):Play()
+   
+   CreateNotification("Welcome Back!", "UI reopened successfully!", 2, "success")
+end)
+
+-- Make mini button draggable
+local miniDragging = false
+local miniDragStart
+local miniStartPos
+
+MiniButton.InputBegan:Connect(function(input)
+   if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+      miniDragging = true
+      miniDragStart = input.Position
+      miniStartPos = MiniButton.Position
+      
+      input.Changed:Connect(function()
+         if input.UserInputState == Enum.UserInputState.End then
+            miniDragging = false
+         end
+      end)
+   end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+   if miniDragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+      local delta = input.Position - miniDragStart
+      MiniButton.Position = UDim2.new(
+         miniStartPos.X.Scale,
+         miniStartPos.X.Offset + delta.X,
+         miniStartPos.Y.Scale,
+         miniStartPos.Y.Offset + delta.Y
+      )
+   end
+end)
+
+-- Close Button (modified to show mini button)
+local uiClosed = false
 CloseButton.MouseButton1Click:Connect(function()
+   if uiClosed then return end
+   uiClosed = true
+   
+   -- Close main UI
    TweenService:Create(Blur, TweenInfo.new(0.3), {Size = 0}):Play()
    TweenService:Create(MainContainer, TweenInfo.new(0.3, Enum.EasingStyle.Back), {
       Size = UDim2.new(0, 0, 0, 0)
    }):Play()
    
    task.wait(0.3)
-   ScreenGui:Destroy()
-   Blur:Destroy()
+   MainContainer.Visible = false
+   
+   -- Show mini button
+   MiniButton.Visible = true
+   MiniButton.Size = UDim2.new(0, 0, 0, 0)
+   MiniButton.Position = UDim2.new(1, -70, 0.5, -30)
+   
+   TweenService:Create(MiniButton, TweenInfo.new(0.4, Enum.EasingStyle.Back), {
+      Size = UDim2.new(0, 60, 0, 60)
+   }):Play()
+   
+   -- Start pulse animation
+   task.spawn(PulseMini)
+   
+   uiClosed = false
 end)
 
 -- Minimize Button
